@@ -10,8 +10,6 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
-// import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-// import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { BiDownload } from "react-icons/bi";
 import { TbArrowsSort } from "react-icons/tb"
 import { AiOutlineDown } from "react-icons/ai";
@@ -46,7 +44,7 @@ function createData(
             progress: "90%",
         },
         {
-            id: 6,
+            id: 2,
             title: "Lập trình 1 chức năng",
             time: "2 giờ",
             deadline: "15/05/2023",
@@ -235,11 +233,11 @@ function Row(props) {
 }
 
 const rows = [
-    createData("Lập trình 4 chức năng" ,"2 giờ", "15/06/2023", "14/06/2023", "Chưa hoàn thành", "90%"),
-    createData("Triển khai", "2 giờ", "15/05/2023", "24/05/2023", "Quá hạn", "10%"),
-    createData('Hổ trợ', 262, 16.0, 24, 6.0, 3.79),
-    createData('Cupcake', 305, 3.7, 67, 4.3, 2.5),
-    createData('Gingerbread', 356, 16.0, 49, 3.9, 1.5),
+    createData("Phòng giải pháp" ,23, "Nguyễn Văn A", 0, 0, "100%"),
+    createData("Phòng triển khai", 28, "Nguyễn Văn B", 3, 4, "75%"),
+    createData('Phòng hổ trợ', 26, "Nguyễn Văn C", 2, 6, "65%"),
+    createData('Phòng kỹ thuật', 30, "Nguyễn Văn D", 1, 2, "90%"),
+    createData('Phòng kế hoạch', 36, "Nguyễn Văn E", 6, 12, "50%"),
 ];
 
 export default function CollapsibleTable() {
@@ -287,13 +285,13 @@ export default function CollapsibleTable() {
                             <tr className="border-x border-black">
                                 {/* <TableCell></TableCell> */}
                                 <th className="text-left">
-                                    <p className="text-xl ml-2">Công việc được giao</p>
+                                    <p className="text-xl ml-2">Công việc đã giao</p>
                                 </th>
                                 <th className="w-40">
                                     <div className="flex justify-center items-center">
                                         <div>
-                                            <p>Thời gian </p>
-                                            <p>thực hiện</p>
+                                            <p>Tổng CV</p>
+                                            <p>đã giao</p>
                                         </div>
                                         <button 
                                             className="ml-1 text-xl bg-blue-300 z-1 0 position" 
@@ -336,8 +334,8 @@ export default function CollapsibleTable() {
                                 <th className="w-40 text-center">
                                     <div className="flex justify-center items-center">
                                         <div>
-                                            <p>Thời hạn</p>
-                                            <p>công việc</p>
+                                            <p>Lãnh đạo</p>
+                                            <p>đơn vị</p>
                                         </div>
                                         <button className="ml-1 text-xl bg-blue-300">
                                             <TbArrowsSort/>
@@ -347,8 +345,8 @@ export default function CollapsibleTable() {
                                 <th className="w-40 text-center">
                                     <div className="flex justify-center items-center">
                                         <div>
-                                            <p>Thời gian</p>
-                                            <p>hoàn thành</p>
+                                            <p>Công việc</p>
+                                            <p>sắp đến hạn</p>
                                         </div>
                                         <button className="ml-1 text-xl bg-blue-300">
                                             <TbArrowsSort/>
@@ -358,8 +356,8 @@ export default function CollapsibleTable() {
                                 <th className="w-48 text-center">
                                     <div className="flex justify-center items-center">
                                         <div>
-                                            <p>Trạng thái</p>
-                                            <p>công việc</p>
+                                            <p>Công việc</p>
+                                            <p>chưa hoàn thành</p>
                                         </div>
                                         <button className="ml-1 text-xl bg-blue-300">
                                             <TbArrowsSort/>

@@ -94,7 +94,7 @@ function Login() {
                         <img className="bg-white" src={Logo} alt="Logo" />
                     </div>
                     <div className="flex justify-center text-center">
-                        <h1 className="text-[3rem] font-bold text-white ml-32">TRANG QUẢN TRỊ</h1>
+                        <h1 className="text-[3rem] font-bold text-white ml-20">TRANG QUẢN TRỊ</h1>
                     </div>
                 </div>
             </div>

@@ -19,19 +19,20 @@ function Home() {
                 </div>
                 <div className="flex justify-center">
                     <div>
-                        <Pie_Chart_Sum/>
-                    </div>
-                    <div>
-                        <Pie_Chart/>
-                    </div>
-                </div>
-                <div className="flex justify-center">
-                    <div>
-                        <Bar_Chart_Time/>
-                    </div>
-                    <div>
                         <Bar_Chart_Type/>
                     </div>
+                    <div>
+                        <Pie_Chart_Sum/>
+                    </div>
+                    {/* <div>
+                        <Pie_Chart/>
+                    </div> */}
+                </div>
+                <div className="flex justify-center">
+                    {/* <div>
+                        <Bar_Chart_Time/>
+                    </div> */}
+                    
                 </div>
             </div>
         </div>
