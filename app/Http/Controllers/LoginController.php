@@ -8,6 +8,7 @@ class LoginController extends Controller
 {
     //
     public function login(){
+        $id= '1';
         return view('welcome');
     }
 }
