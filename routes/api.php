@@ -31,9 +31,9 @@ Route::prefix('dashboardqlcv')->group(function () {
     route::get('/nvcot', [NvCot::class, 'cot']);
 
 
-    Route::get('/LD', [LanhdaoController::class, 'lanhdao']);
+    Route::get('/ldcot', [LanhdaoController::class, 'lanhdao']);
     Route::get('/ldtron', [LdTron::class, 'tron']);
-    Route::get('/ldcot', [LdCot::class, 'cot']);
+    Route::get('/ldbang', [LdCot::class, 'cot']);
 
     Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
         return $request->user();

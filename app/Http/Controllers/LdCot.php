@@ -10,8 +10,13 @@ use App\Models\CongViec;
 
 class LdCot extends Controller
 {
-    public function tron(Request $request){
-
+    public function cot(Request $request){
+        $thang=$request->input('thang');
+        if(!$thang){
+            $thang=date('m');
+            $Bang=CongViec::BangDv()->get();
+            return response()->json($Bang);
+        }
 
     }
 }

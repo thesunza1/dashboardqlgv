@@ -14,6 +14,10 @@ class BaoCaoHangNgay extends Model
 {
     public $table ='baocaohangngay';
     use HasFactory;
+    public function nhanViens()
+    {
+        return $this->hasMany('App\Models\NhanVien', 'nv_id', 'nv_id');
+    }
     public function scopeSoGioLam($query, $id,$thang){
         return $query
         ->where('nv_id', $id)
@@ -164,54 +168,26 @@ class BaoCaoHangNgay extends Model
     
         return collect($congviecvagio_moi);
     }
+/***********************************Lãnh đạo**************************************************************** */
 
-    public function scopeSoGioLamTheoDv($query, $id, $thang)
-    {
-        $congviecvagio = $query
-            ->join('donvi', 'donvi.dv_id', '=', 'congviec.dv_id')
-            ->select('donvi.dv_ten', 'baocaohangngay.so_gio_lam', 'baocaohangngay.lcv_id')
-            ->where('baocaohangngay.nv_id', '=', $id)
-            ->whereMonth('baocaohangngay.bchn_ngay', '=', $thang)
-            ->get();
+public function scopeSoGioLamTheoDv($query, $thang)
+{
+    $congviecvagio = $query
+        ->join('donvi', 'nhanvien.dv_id', '=', 'donvi.dv_id')
+        ->join('nhanvien', 'nhanvien.nv_id', '=', 'baocaohangngay.nv_id')
+        ->select('donvi.dv_ten', 'baocaohangngay.so_gio_lam')
+        ->whereMonth('baocaohangngay.bchn_ngay', '=', $thang)
+        ->get();
+}
     
-        $soGioLamTheoLcvId = [];
-        foreach ($congviecvagio as $cv) {
-            $lcvId = $cv->lcv_id;
-            $soGioLam = $cv->so_gio_lam;
-    
-            if (isset($soGioLamTheoLcvId[$lcvId])) {
-                $soGioLamTheoLcvId[$lcvId] += $soGioLam;
-            } else {
-                $soGioLamTheoLcvId[$lcvId] = $soGioLam;
-            }
-        }
         
     
-        // Tạo một mảng mới `congviecvagio_moi` chỉ với những phần tử không bị trùng lặp và giá trị cột so_gio_lam đã được cộng số giờ làm tương ứng
-        $congviecvagio_moi = [];
-        foreach ($congviecvagio as $cv) {
-            $lcvId = $cv->lcv_id;
-            $soGioLam = $soGioLamTheoLcvId[$lcvId];
-    
-            if (!isset($congviecvagio_moi[$lcvId])) {
-                $congviecvagio_moi[$lcvId] = [
-                    'lcv_ten' => $cv->lcv_ten,
-                    'so_gio_lam' => $soGioLam,
-                    'lcv_id' => $cv->lcv_id
-                ];
-            }
-        }
-    
-        // Chuyển mảng kết hợp `congviecvagio_moi` thành mảng tuần tự
-        $congviecvagio_moi = array_values($congviecvagio_moi);
-    
-        return collect($congviecvagio_moi);
-    }
 
-   /* $data11 = DB::table('congviec')
-           ->join('nhanvien', 'nhanvien.nv_id', '=', 'congviec.nv_id')
-           ->join('donvi', 'donvi.dv_id', '=', 'products.order_id')
-           ->select('users.name', 'orders.id', 'products.name')
-           ->where('orders.id', '=', 1)
-           ->get();*/
+  
 }
+/**$baocao = DB::table('baocaohangngay')
+    
+    ->join('nhanvien', 'nhanvien.nv_id', '=', 'baocaohangngay.nv_id')
+    ->select('donvi.*', 'baocaohangngay.*', 'nhanvien.*')
+    ->where('baocaohangngay.ma_baocao', '=', 'BC001')
+    ->get(); */

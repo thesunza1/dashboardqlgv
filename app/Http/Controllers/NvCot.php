@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\BaoCaoHangNgay;
 use Illuminate\Support\Facades\Redirect;
 use App\Models\CongViec;
+use Carbon\Carbon;
 
 class NvCot extends Controller
 {
@@ -15,6 +16,7 @@ class NvCot extends Controller
         $thang = $request->input('thang');
 
         if($id&&$thang){
+            $th=$thang;
             //thời gian thực hiện công việc của tháng hiện tại
             $TongGioLam = BaoCaoHangNgay::SoGioLam($id,$thang);
 
@@ -67,8 +69,8 @@ class NvCot extends Controller
                 "TongGioLamT9" => $TongGioLamT9,
                 "TongGioLamT10" => $TongGioLamT10,
                 "TongGioLamT11" => $TongGioLamT11,
-                "TongGioLamT12" => $TongGioLamT12
-               
+                "TongGioLamT12" => $TongGioLamT12,
+               "thang"=>$th
             ];
             return response()->json([$nvcot]);
 
@@ -76,6 +78,8 @@ class NvCot extends Controller
 
 
         if($id){
+            $th=ltrim((date('m')),'0');
+            $thang=Carbon::now();
             //thời gian thực hiện công việc của tháng hiện tại
             $TongGioLam = BaoCaoHangNgay::SoGioLam($id,$thang);
 
@@ -128,8 +132,8 @@ class NvCot extends Controller
                 "TongGioLamT9" => $TongGioLamT9,
                 "TongGioLamT10" => $TongGioLamT10,
                 "TongGioLamT11" => $TongGioLamT11,
-                "TongGioLamT12" => $TongGioLamT12
-               
+                "TongGioLamT12" => $TongGioLamT12,
+               "thang"=>$th
             ];
             return response()->json([$nvcot]);
 

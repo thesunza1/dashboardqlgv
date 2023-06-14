@@ -6,14 +6,14 @@ use Illuminate\Http\Request;
 use App\Models\BaoCaoHangNgay;
 use Illuminate\Support\Facades\Redirect;
 use App\Models\CongViec;
+use Illuminate\Support\Carbon;
 
 class NvTron extends Controller
 { public function tron(Request $request){
     $id=1;
     $thang=request()->input('thang');
-
     if ($id&&$thang) {
-        
+        $th=$thang;
         
 
 //Tổng công việc cha trong tháng
@@ -41,7 +41,8 @@ class NvTron extends Controller
             "TongCvChuaHT" => $TongCvChuaHoanThanh,
             "TongCvChuaHTQH" => $TongCvChuaHoanThanhQH,
             "TongCvHoanThanh" => $TongCvHoanThanh,
-            "TongCvHoanThanhQH" => $TongCvHoanThanhQuaHan
+            "TongCvHoanThanhQH" => $TongCvHoanThanhQuaHan,
+            "thang"=>$th
         ];
         
         
@@ -51,9 +52,9 @@ class NvTron extends Controller
     
     
     if ($id) {
-        $thang = date('m');
-        
-
+        $thang = Carbon::now();
+        $th=ltrim((date('m')),'0');
+       
 //Tổng công việc cha trong tháng
         $TongCv = CongViec::countCvChaThang($id,$thang);    
 
@@ -79,7 +80,8 @@ class NvTron extends Controller
             "TongCvChuaHT" => $TongCvChuaHoanThanh,
             "TongCvChuaHTQH" => $TongCvChuaHoanThanhQH,
             "TongCvHoanThanh" => $TongCvHoanThanh,
-            "TongCvHoanThanhQH" => $TongCvHoanThanhQuaHan
+            "TongCvHoanThanhQH" => $TongCvHoanThanhQuaHan,
+            "thang"=>$th
         ];
         
         

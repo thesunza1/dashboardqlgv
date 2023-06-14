@@ -9,4 +9,8 @@ class DonVi extends Model
 {
     public $table ='donvi';
     use HasFactory;
+    public function nhanViens()
+    {
+        return $this->hasMany('App\Models\NhanVien', 'dv_id', 'dv_id');
+    }
 }
