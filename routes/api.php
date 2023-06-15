@@ -25,7 +25,7 @@ Route::prefix('dashboardqlcv')->group(function () {
 
 
 
-    route::get('/nhanvien', [NhanVienController::class, 'index']);
+    route::get('/nhanvien', [NhanVienController::class, 'index'])->name('dashboard');
     route::get('/nvbang', [NvBang::class, 'bang']);
     route::get('/nvtron', [NvTron::class, 'tron']);
     route::get('/nvcot', [NvCot::class, 'cot']);

@@ -10,45 +10,49 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\RedirectResponse;
 use  Illuminate\Validation\Validator;
+use App\Models\User;
+
+
 class LoginController extends Controller
+
 {
-    public function getlogin()
-    {
+    public function getlogin(){
         return view('backend.dangnhap');
+
     }
 
-    public function postlogin(Request $request)
+    public function postlogin(Request $request )
+    
+    /*{
+        $username = $request->nv_taikhoan;
+        $pass=$request->nv_matkhau;
+        $so=[$username,$pass];
+        if (Auth::attempt($so)) {
+            $user = Auth::user();
+            return response()->json($user);
+        }
+        return redirect('/login')->withErrors(['message' => 'Tên đăng nhập hoặc mật khẩu không đúng']);
+    }
+    */
     {
-        $use=$request->input('username');
-        $arr =[
-            'nv_taikhoan'=>$request->nv_taikhoan,
-            'nv_matkhau'=>$request->password
-
-        ];
-        return $arr;
-        if (Auth::attempt($arr)) {
-           // $request->session()->regenerate();
-           
-        // Đăng nhập thành công
-        $nhanvien = NhanVien::where('nv_taikhoan',$use)->first();
-        if ($nhanvien->nv_quyen == 'nv') {
-            // Người dùng có quyền lãnh đạo, chuyển hướng đến trang danh sách nhân viên
-            return redirect('/api/nhanvien');
-        } if ($nhanvien->nv_quyen == 'ld') {
-            // Người dùng có quyền lãnh đạo, chuyển hướng đến trang danh sách nhân viên
-            return redirect('/api/lanhdao');}
+        $credentials = $request->only('nv_taikhoan', 'nv_matkhau');
+        $user = User::where('nv_taikhoan', $credentials['nv_taikhoan'])->first();
+        if (Auth::attempt([!$user])) {
+            return redirect('login')->withErrors([
+                'login_failed' => 'Đăng nhập thất bại, vui lòng thử lại!'
+            ]);
+        }
+        Auth::login($user);
+        $user1=auth()->user();
         
-        
-    } else {
-        // Đăng nhập thất bại
-        return '111';back()->withErrors(['message' => 'Tên đăng nhập hoặc mật khẩu không chính xác, vui lòng thử lại!']);
+        return response()->json($user1);
     }
-           
-    
-    
-    
+
 }
-}
+    
+    
+

@@ -13,6 +13,8 @@ class NvBang extends Controller
     {
     //
     $id=1;
+    //$user1=auth()->user();
+    //$id=$user1->nv_id;
     $Cha=$request->input('cvCha');
     $thang=$request->input('thang');
     if($Cha&&$thang){
@@ -42,36 +44,26 @@ class NvBang extends Controller
                 }
     if($id){
     $thang = date('m');
-    /*$CvCha = CongViec::CvCha($id,$thang)->get();
-    $Cvcha1=CongViec::get_CongViec()->get();
-                
-                return response()->json(
-                    $Cvcha1
-            );
+    $cvChaThang = CongViec::CvChaThang($id, $thang)->get();
+$cvCon = CongViec::CvCon($id, $thang)->get();
 
-            }*/
+// Duyệt mảng công việc con
+foreach ($cvCon as $con) {
+    // Tìm công việc cha tương ứng bằng cách so sánh cv_cv_cha và cv_id
+    $cha = $cvChaThang->where('cv_id', $con->cv_cv_cha)->first();
 
-            // Lấy tất cả các công việc cha và các công việc con của nhân viên
-$cv = CongViec::CvChaThang($id, $thang)->get();
+    // Nếu công việc cha được tìm thấy, thêm công việc con vào mảng công việc con của công việc cha
+    if ($cha) {
+        if (!isset($cha->congViecCon)) {
+            $cha->congViecCon = collect([$con]);
+        } else {
+            $cha->congViecCon->push($con);
+        }
+    }
+}
 
-
-// Nhóm tất cả các công việc con theo `cv_cv_cha`
-$cvGroupByCha = $cv->groupBy('cv_id');
-// Thêm danh sách công việc con vào từng công việc cha
-$cvCha = collect();
-$cvGroupByCha->each(function ($item, $key) use ($cvCha) {
-// Lấy tất cả các công việc con
-$cvCon = $item->pluck('cv_cv_cha')->filter();
-
-// Thêm danh sách công việc con vào công việc cha
-$item[0]['congViecCon'] = $cvCon;
-
-// Thêm công việc cha vào danh sách
-$cvCha->push($item[0]);    
-});
-
-// Trả về mảng các công việc cha có công việc con bên trong
-return $cvCha;
+// Trả về mảng công việc cha đã được thêm danh sách công việc con vào
+return $cvChaThang;
 
 }
     }}
