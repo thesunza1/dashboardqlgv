@@ -22,8 +22,8 @@ class LanhdaoController extends Controller
     
     public function lanhdao(Request $request)
     {
-        //$thang=$request->input('thang');
-        $thang=06;
+        $thang=$request->input('thang');
+       
         if($thang){
             
             $th=ltrim($thang,'0');
@@ -31,7 +31,9 @@ class LanhdaoController extends Controller
             $ten1=[];
            
             foreach ($BieuDoCot as $donVi => $tyLe) {
-                $ten1[]=["name"=>"$donVi","value"=> "$tyLe"];
+                $gia_fm = number_format($tyLe, 2, '.', ',');
+                $gia_num = floatval(str_replace(',', '', $gia_fm));
+                $ten1[]=["name"=>"$donVi","value"=> "$gia_num"];
                 
                 
             }
@@ -39,7 +41,7 @@ class LanhdaoController extends Controller
             $ten1[]=$tha;
             
             return response()->json($ten1);
-            return response()->json($ten1);
+            
         }
         if(!$thang){
             $thang=Carbon::now();
@@ -49,7 +51,9 @@ class LanhdaoController extends Controller
             $ten1=[];
            
             foreach ($BieuDoCot as $donVi => $tyLe) {
-                $ten1[]=["name"=>"$donVi","value"=> "$tyLe"];
+                $gia_fm = number_format($tyLe, 2, '.', ',');
+                $gia_num = floatval(str_replace(',', '', $gia_fm));
+                $ten1[]=["name"=>"$donVi","value"=> "$gia_num"];
                 
                 
             }

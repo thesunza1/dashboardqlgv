@@ -21,15 +21,15 @@ class LdCot extends Controller
             
             $nam = date('y');
 
-$hientai = date('Y-m-t', mktime(0, 0, 0, $thang+1, 0, $nam));
+            $hientai = date('Y-m-t', mktime(0, 0, 0, $thang+1, 0, $nam));
             
             $ngay = date('Y-m-d', strtotime('+3 days', strtotime($hientai))); // Trừ đi 3 ngày
            
-            return $ngay;
-    $donvi = DonVi::select('dv_id', 'dv_ten')->get();
-    $congviec = CongViec::CvDv($thang)->get();
-    $congviecs = CongViec::CvDv($thang)->get();
-    $TruongPhong=NhanVien::BangDv()->get();
+            
+            $donvi = DonVi::select('dv_id', 'dv_ten')->get();
+            $congviec = CongViec::CvDvT($thang)->get();
+            $congviecs = CongViec::BangConDv($thang)->get();
+            $TruongPhong=NhanVien::BangDv()->get();
     
     //return $TruongPhong;
 
@@ -99,8 +99,8 @@ foreach ($donvi as $value) {
             
             
     $donvi = DonVi::select('dv_id', 'dv_ten')->get();
-    $congviec = CongViec::CvDv($thang)->get();
-    $congviecs = CongViec::CvDv($thang)->get();
+    $congviec = CongViec::CvDvT($thang)->get();
+    $congviecs = CongViec::BangConDv($thang)->get();
     $TruongPhong=NhanVien::BangDv()->get();
     
     //return $TruongPhong;
@@ -122,10 +122,10 @@ foreach ($donvi as $value) {
             if ($cv->cv_trangthai == 1) { // Đang thực hiện
                 $tongcv++; // Tăng tổng công việc lên 1
             }
-            if ($cv->cv_hanhoanthanh >= $hientai && $cv->cv_hanhoanthanh <= $ngay) { // Sắp đến hạn hoàn thành
+            if ($cv->cv_trangthai == 1&&$cv->cv_hanhoanthanh >= $hientai && $cv->cv_hanhoanthanh <= $ngay) { // Sắp đến hạn hoàn thành
                 $sapdenhan++; // Tăng số lượng công việc sắp hết hạn lên 1
             }
-            if ( $hientai>$cv->cv_hanhoanthanh ) { // Hết hạn hoàn thành
+            if ( $cv->cv_trangthai == 1&&$hientai>$cv->cv_hanhoanthanh ) { // Hết hạn hoàn thành
                 $hethan++; // Tăng số lượng công việc đã hết hạn hoàn thành lên 1
             }
         }

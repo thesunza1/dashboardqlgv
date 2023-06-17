@@ -28,6 +28,7 @@ class NhanVienController extends Controller
       
         
         if ($id && $thang) {
+            $thang=ltrim($thang,'0');
             
 
             //công việc và giờ làm được giao trong tháng 
@@ -43,6 +44,7 @@ class NhanVienController extends Controller
         
         if ($id) {
             $thang = date('m');
+            $thang=ltrim($thang,'0');
             
  //công việc và giờ làm được giao trong tháng 5
 

@@ -158,7 +158,53 @@ class BaoCaoHangNgay extends Model
                 $congviecvagio_moi[$lcvId] = [
                     'lcv_ten' => $cv->lcv_ten,
                     'so_gio_lam' => "$soGioLam",
-                    'lcv_id' => $cv->lcv_id
+                    'lcv_id' => $cv->lcv_id,
+                    'thang'=>"$thang"
+                ];
+            }
+        }
+    
+        // Chuyển mảng kết hợp `congviecvagio_moi` thành mảng tuần tự
+        $congviecvagio_moi = array_values($congviecvagio_moi);
+    
+        return collect($congviecvagio_moi);
+    }
+
+    public function scopeSoGioLamTheocvId($query, $id, $thang)
+    {
+        $congviecvagio1 = $query
+            ->join('congviec', 'baocaohangngay.cv_id', '=', 'congviec.cv_id')
+            ->select('congviec.cv_ten', 'baocaohangngay.so_gio_lam', 'baocaohangngay.cv_id')
+            ->where('baocaohangngay.nv_id', '=', $id)
+            ->whereMonth('baocaohangngay.bchn_ngay', '=', $thang)
+            ->get();
+    
+        $soGioLamTheocvId = [];
+        foreach ($congviecvagio1 as $cv) {
+            $cvId = $cv->cv_id;
+            $soGioLam = $cv->so_gio_lam;
+            $tong=[];
+            if (isset($soGioLamTheocvId[$cvId])) {
+                $soGioLamTheocvId[$cvId] += $soGioLam;
+            } else {
+                $soGioLamTheocvId[$cvId] = $soGioLam;
+            }
+           
+        }
+    
+        // Tạo một mảng mới `congviecvagio_moi` chỉ với những phần tử không bị trùng lặp và giá trị cột so_gio_lam đã được cộng số giờ làm tương ứng
+        $congviecvagio_moi = [];
+        foreach ($congviecvagio1 as $cv) {
+            $cvId = $cv->cv_id;
+            $soGioLam = $soGioLamTheocvId[$cvId];
+    
+            if (!isset($congviecvagio_moi[$cvId])) {
+                $congviecvagio_moi[$cvId] = [
+                    'cv_ten' => $cv->cv_ten,
+                    'so_gio_lam' => "$soGioLam",
+                    'cv_id' => $cv->cv_id
+                    
+                  
                 ];
             }
         }

@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+
 use Illuminate\Support\Facades\Http;
 use App\Models\NhanVien;
+
 use Illuminate\Support\Facades\Session;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,6 +17,8 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\RedirectResponse;
 use  Illuminate\Validation\Validator;
 use App\Models\User;
+use JWTAuth;
+use JWTAuthException;
 
 
 class LoginController extends Controller
@@ -25,36 +29,27 @@ class LoginController extends Controller
 
     }
 
-    public function postlogin(Request $request )
-    
-    {
-        $credentials = $request->only('nv_taikhoan', 'nv_matkhau');
-    $user = NhanVien::where('nv_taikhoan', $credentials['nv_taikhoan'])->first();
-    
-    if ($user && Hash::check($credentials['nv_matkhau'], $user->nv_matkhau)) {
-        // Đăng nhập thành công
-        Auth::login($user);
-        $token = $user->createToken('MyApp')->accessToken;
-        $responseData = [
-            'status' => 'success',
-            'token' => $token,
-            'user' => $user
-        ];
-        return response()->json($responseData);
-    } else {
-        // Đăng nhập thất bại
-        $responseData = [
-            'status' => 'error',
-            'message' => 'Tên đăng nhập hoặc mật khẩu không đúng'
-        ];
-        return response()->json($responseData, 401);
+    public function postLogin(Request $request)
+{
+    $credentials = $request->only('nv_taikhoan', 'nv_matkhau');
+
+    try {
+        if (!$token = JWTAuth::attempt($credentials)) {
+            return response()->json(['error' => 'Tên đăng nhập hoặc mật khẩu không đúng'], 401);
+        }
+    } catch (JWTException $e) {
+        return response()->json(['error' => 'Không thể tạo token'], 500);
     }
-        
-        
-        
-        
-        
-    }
+
+    $user = JWTAuth::user();
+    $responseData = [
+        'status' => 'success',
+        'token' => $token,
+        'user' => $user
+    ];
+    return response()->json($responseData);
+}
+
 
 }
     
