@@ -27,29 +27,33 @@ class LoginController extends Controller
 
     public function postlogin(Request $request )
     
-    /*{
-        $username = $request->nv_taikhoan;
-        $pass=$request->nv_matkhau;
-        $so=[$username,$pass];
-        if (Auth::attempt($so)) {
-            $user = Auth::user();
-            return response()->json($user);
-        }
-        return redirect('/login')->withErrors(['message' => 'Tên đăng nhập hoặc mật khẩu không đúng']);
-    }
-    */
     {
         $credentials = $request->only('nv_taikhoan', 'nv_matkhau');
-        $user = User::where('nv_taikhoan', $credentials['nv_taikhoan'])->first();
-        if (Auth::attempt([!$user])) {
-            return redirect('login')->withErrors([
-                'login_failed' => 'Đăng nhập thất bại, vui lòng thử lại!'
-            ]);
-        }
+    $user = NhanVien::where('nv_taikhoan', $credentials['nv_taikhoan'])->first();
+    
+    if ($user && Hash::check($credentials['nv_matkhau'], $user->nv_matkhau)) {
+        // Đăng nhập thành công
         Auth::login($user);
-        $user1=auth()->user();
+        $token = $user->createToken('MyApp')->accessToken;
+        $responseData = [
+            'status' => 'success',
+            'token' => $token,
+            'user' => $user
+        ];
+        return response()->json($responseData);
+    } else {
+        // Đăng nhập thất bại
+        $responseData = [
+            'status' => 'error',
+            'message' => 'Tên đăng nhập hoặc mật khẩu không đúng'
+        ];
+        return response()->json($responseData, 401);
+    }
         
-        return response()->json($user1);
+        
+        
+        
+        
     }
 
 }

@@ -106,10 +106,43 @@ public function scopeCongViecChuaHoanThanhQH($query, $id,$thang){
 public function scopeCvDv($query,$thang)
 {
     //$currentMonth = date('m');
-    return $query->select('cv_ten', 'cv_tgthuchien', 'CV_HANHOANTHANH', 'cv_thgianhoanthanh', 'cv_trangthai', 'cv_tiendo', 'cv_id')
+    return $query
+                ->select('dv_id','cv_id' ,'cv_tgthuchien', 'cv_hanhoanthanh', 'cv_thgianhoanthanh', 'cv_trangthai', 'cv_tiendo', 'cv_cv_cha')
+
 
                 ->where('cv_cv_cha', '=', 0)
                 ->where('cv_tiendo','<',100)
+                ->whereMonth('CV_THGIANBATDAU', '<=', $thang)
+                ->whereYear('CV_THGIANBATDAU', '<=', Carbon::now()->year)
+                ->whereYear('cv_hanhoanthanh', '>=', Carbon::now()->year)
+                ->where(function ($query) use ($thang) {
+                    $query->whereNull('cv_thgianhoanthanh')
+                        ->whereMonth('cv_hanhoanthanh', '>=', $thang)
+                        ->orWhere(function ($query) use ($thang) {
+                            $query->whereNotNull('cv_thgianhoanthanh')
+                                ->whereMonth('cv_thgianhoanthanh', '>=', $thang);
+                        });
+                })
+                ->groupBy('dv_id','cv_id' ,'cv_tgthuchien', 'CV_HANHOANTHANH', 'cv_thgianhoanthanh', 'cv_trangthai', 'cv_tiendo', 'cv_cv_cha')
+                ;
+                /*
+                
+    // tạo một mảng mới CvDv theo từng dv_id
+    $CvDv = array();
+    foreach($result as $value) {
+        $id = $value['dv_id'];
+        $CvDv[$id][] = $value;
+    }
+
+    return $CvDv;*/
+               
+}
+public function scopeCvConDv($query, $thang) 
+{
+    //$currentMonth = date('m');
+    return $query->select('cv_ten', 'cv_tgthuchien', 'CV_HANHOANTHANH', 'cv_thgianhoanthanh', 'cv_trangthai', 'cv_tiendo', 'dv_id')
+                
+               ->where('cv_cv_cha','!=',0)
                 ->whereMonth('CV_THGIANBATDAU', '<=', $thang)
                 ->whereYear('CV_THGIANBATDAU', '<=', Carbon::now()->year)
                 ->whereYear('cv_hanhoanthanh', '>=', Carbon::now()->year)
@@ -148,8 +181,8 @@ public function scopeBangDv($query)
         return $query
             ->join('donvi', 'congviec.dv_id', '=', 'donvi.dv_id')
             ->join('nhanvien', 'nhanvien.nv_id', '=', 'congviec.nv_id')
-            ->select('nhanvien.nv_ten', 'congviec.cv_trangthai')
-            ->wherecolumn('donvi.dv_id_dvtruong','=','nhanvien.nv_id')
+            ->select('nhanvien.nv_ten', 'donvi.dv_id','donvi.dv_id_dvtruong' ,'nhanvien.nv_id')
+            ->whereColumn ('donvi.dv_id_dvtruong','=','nhanvien.nv_id')
             
             ;
         

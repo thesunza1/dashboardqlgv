@@ -22,16 +22,41 @@ class LanhdaoController extends Controller
     
     public function lanhdao(Request $request)
     {
-        $thang=$request->input('thang');
+        //$thang=$request->input('thang');
+        $thang=06;
         if($thang){
-           
+            
+            $th=ltrim($thang,'0');
             $BieuDoCot=NhanVien::SoGioLamTheoDv($thang);
-            return response()->json($BieuDoCot);
+            $ten1=[];
+           
+            foreach ($BieuDoCot as $donVi => $tyLe) {
+                $ten1[]=["name"=>"$donVi","value"=> "$tyLe"];
+                
+                
+            }
+            $tha=["name"=>"thang","value"=>"$th"];
+            $ten1[]=$tha;
+            
+            return response()->json($ten1);
+            return response()->json($ten1);
         }
         if(!$thang){
             $thang=Carbon::now();
+            $month = $thang->format('m');
+            $th=ltrim($month,'0');
             $BieuDoCot=NhanVien::SoGioLamTheoDv($thang);
-            return response()->json($BieuDoCot);
+            $ten1=[];
+           
+            foreach ($BieuDoCot as $donVi => $tyLe) {
+                $ten1[]=["name"=>"$donVi","value"=> "$tyLe"];
+                
+                
+            }
+            $tha=["name"=>"thang","value"=>"$th"];
+            $ten1[]=$tha;
+            
+            return response()->json($ten1);
 
 }   
     }

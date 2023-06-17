@@ -16,7 +16,7 @@ class BaoCaoHangNgay extends Model
     use HasFactory;
     public function nhanViens()
     {
-        return $this->hasMany('App\Models\NhanVien', 'nv_id', 'nv_id');
+        return $this->belongsTo('App\Models\NhanVien', 'nv_id', 'nv_id');
     }
     public function scopeSoGioLam($query, $id,$thang){
         return $query
@@ -157,7 +157,7 @@ class BaoCaoHangNgay extends Model
             if (!isset($congviecvagio_moi[$lcvId])) {
                 $congviecvagio_moi[$lcvId] = [
                     'lcv_ten' => $cv->lcv_ten,
-                    'so_gio_lam' => $soGioLam,
+                    'so_gio_lam' => "$soGioLam",
                     'lcv_id' => $cv->lcv_id
                 ];
             }

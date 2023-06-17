@@ -4,13 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminates\Contracts\Auth\Authenticatable;
 use Illuminate\Foundation\Auth\User;
 
-class NhanVien extends Model implements Authenticatable
+class NhanVien extends Model 
 
 {
-    use \Illuminate\Auth\Authenticatable;
+   
     
     protected $table = 'nhanvien';
     protected $fillable = [
@@ -30,6 +30,10 @@ class NhanVien extends Model implements Authenticatable
     public function baoCaoHangNgays()
     {
         return $this->hasMany('App\Models\BaoCaoHangNgay', 'nv_id', 'nv_id');
+    }
+    public function congViecs()
+    {
+        return $this->hasMany('App\Models\CongViec', 'nv_id', 'nv_id');
     }
     public function scopeSoGioLamTheoDv($query, $thang)
     {
@@ -59,4 +63,15 @@ class NhanVien extends Model implements Authenticatable
     }
 
     return $tylelamviec;
-}}
+}
+public function scopeBangDv($query)
+    {
+        return $query
+            ->join('donvi', 'nhanvien.dv_id', '=', 'donvi.dv_id')
+            ->select('nhanvien.nv_ten', 'donvi.dv_id','donvi.dv_id_dvtruong' ,'nhanvien.nv_id')
+            ->whereColumn ('donvi.dv_id_dvtruong','=','nhanvien.nv_id')
+            
+            ;
+        
+        }
+}

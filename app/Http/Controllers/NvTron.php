@@ -13,7 +13,8 @@ class NvTron extends Controller
     $id=1;
     $thang=request()->input('thang');
     if ($id&&$thang) {
-        $th=$thang;
+        $month = $thang->format('m');
+        $th=ltrim($month,'0');
         
 
 //Tổng công việc cha trong tháng
@@ -36,6 +37,13 @@ class NvTron extends Controller
 
        
        
+        $TCV=["name"=>"TongCv","value"=>"$TongCv"];
+       $TCVCHT=["name"=>"TongCvChuaHT","value"=>"$TongCvChuaHoanThanh"];
+       $TCVCHT=["name"=>"TongCvChuaHT","value"=>"$TongCvChuaHoanThanh"];
+       $TCVCHTQH=["name"=>"TongCvChuaHTQH","value"=>"$TongCvChuaHoanThanhQH"];
+       $TCVHT=["name"=>"TongCvHT","value"=>"$TongCvHoanThanh"];
+       $TCVHTQH=["name"=>"TongCvHTQH","value"=>"$TongCvHoanThanhQuaHan"];
+       $tha=["name"=>"thang","value"=>"$th"];
         $nvtron = [
             "TongCv" => $TongCv,
             "TongCvChuaHT" => $TongCvChuaHoanThanh,
@@ -46,14 +54,16 @@ class NvTron extends Controller
         ];
         
         
-        return response()->json([$nvtron]);
+        return response()->json([$TCV,$TCVCHT,$TCVCHTQH,$TCVHT,$TCVHTQH,$tha]);
+        
         
     }
     
     
     if ($id) {
         $thang = Carbon::now();
-        $th=ltrim((date('m')),'0');
+        $month = $thang->format('m');
+        $th=ltrim($month,'0');
        
 //Tổng công việc cha trong tháng
         $TongCv = CongViec::countCvChaThang($id,$thang);    
@@ -74,7 +84,13 @@ class NvTron extends Controller
 
 
        
-       
+       $TCV=["name"=>"TongCv","value"=>"$TongCv"];
+       $TCVCHT=["name"=>"TongCvChuaHT","value"=>"$TongCvChuaHoanThanh"];
+       $TCVCHT=["name"=>"TongCvChuaHT","value"=>"$TongCvChuaHoanThanh"];
+       $TCVCHTQH=["name"=>"TongCvChuaHTQH","value"=>"$TongCvChuaHoanThanhQH"];
+       $TCVHT=["name"=>"TongCvHT","value"=>"$TongCvHoanThanh"];
+       $TCVHTQH=["name"=>"TongCvHTQH","value"=>"$TongCvHoanThanhQuaHan"];
+       $tha=["name"=>"thang","value"=>"$th"];
         $nvtron = [
             "TongCv" => $TongCv,
             "TongCvChuaHT" => $TongCvChuaHoanThanh,
@@ -85,7 +101,7 @@ class NvTron extends Controller
         ];
         
         
-        return response()->json([$nvtron]);
+        return response()->json([$TCV,$TCVCHT,$TCVCHTQH,$TCVHT,$TCVHTQH,$tha]);
         
     }
     if ($id == null) {
