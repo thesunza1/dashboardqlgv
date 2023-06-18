@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { PieChart, Pie, Cell } from "recharts";
 import CallApi from "../../../API/CallAPI";
 
-function Pie_Chart_Sum() {
+function Pie_Manager() {
   const [data, setData] = useState([]);
 
   //pie-chart
@@ -11,20 +11,26 @@ function Pie_Chart_Sum() {
   useEffect(() => {
     async function fetchData() {
       try {
-        let res = await CallApi("nvtron", "GET");
-        console.log("Tròn trái", res.data);
+        let res = await CallApi("ldtron", "GET");
+        console.log("Tròn", res.data);
         setData(() => {
           const data = res.data
             .filter((data) => {
-              return data.name === "TongCvHT" || data.name === "TongCvHTQH";
+              return (
+                data.name === "TongCvHT" ||
+                data.name === "TongCVCHT" ||
+                data.name === "TongCvDL"
+              );
             })
             .map((number) => {
               if (number.name === "TongCvHT") {
-                number.name = "Hoàn Thành";
-              } else if (number.name === "TongCvHTQH") {
+                number.name = "CVHT";
+              } else if (number.name === "TongCVCHT") {
                 number.name = "Chưa HT";
+              } else if (number.name === "TongCvDL") {
+                number.name = "CV Đã Làm";
               }
-              number.value = +number.value;
+              number.value = parseInt(number.value);
               return number;
             });
 
@@ -46,16 +52,16 @@ function Pie_Chart_Sum() {
   }, []);
 
   return (
-    <div className="w-[45vw] ml-[2vw] pr-[4vw]">
+    <div className="w-[50vw] ml-[2vw] pr-[4vw]">
       <br />
       <div className="w-[45vw] mb-10 shadow-2xl rounded-md bg-white">
         <p className="text-center text-xl font-bold py-3">
-          Tổng số công viêc hoàn thành trong tháng{" "}
+          Tổng số công viêc trong tháng{" "}
           {data.find((thang) => thang.name === "thang")?.value}
         </p>
         <div className="flex justify-center items-center">
           {data.length !== 0 && (
-            <PieChart width={650} height={360}>
+            <PieChart width={750} height={400}>
               <Pie
                 data={data}
                 dataKey="value"
@@ -84,4 +90,4 @@ function Pie_Chart_Sum() {
   );
 }
 
-export default Pie_Chart_Sum;
+export default Pie_Manager;

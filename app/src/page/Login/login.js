@@ -17,10 +17,10 @@ function Login() {
         }
 
         // Validate username
-        const usernameRegex = /^[a-zA-Z0-9]{8,}$/;
+        const usernameRegex = /^[a-zA-Z0-9]{5,}$/;
         if (!usernameRegex.test(username)) {
             setError(
-                alert("Tên tài khoản phải đủ 8 ký tự")
+                alert("Tên tài khoản phải đủ 5 ký tự")
             );
             return;
         }

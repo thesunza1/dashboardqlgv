@@ -6,12 +6,12 @@ import Dashboard from "./Dashboard";
 import reportWebVitals from "./reportWebVitals";
 
 ReactDOM.render(
-    <React.StrictMode> 
-      <Router>
-        <Dashboard />
-      </Router>
-    </React.StrictMode>,
-   
+  <React.StrictMode>
+    <Router>
+      <Dashboard />
+    </Router>
+  </React.StrictMode>,
+
   document.getElementById("root")
 );
 

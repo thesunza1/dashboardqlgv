@@ -1,80 +1,81 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import CallApi from "../../../API/CallAPI";
 
-import {
-    Legend,
-    PieChart, 
-    Pie,
-    Cell,
-} from "recharts";
+import { PieChart, Pie, Cell } from "recharts";
 
-function Pie_Chart() {   
-    //pie-chart
-    var data_pie_chart = [
-        { name: "Công việc quá hạn", value: 7 },
-        { name: "Công việc chưa hoàn thành", value: 15 },
-    ];
+function Pie_Chart() {
+  const [chart, setChart] = useState([]);
 
-    var COLORS = ["#f21b3f", "#8ac926"];
-    const renderCustom = ({
-        cx,
-        cy,
-        midAngle,
-        innerRadius,
-        outerRadius,
-        index
-        }) => {
-        const RADIAN = Math.PI / 180;
-        const radius = 25 + outerRadius;
-        const x = cx + radius * Math.cos(-midAngle * RADIAN);
-        const y = cy + radius * Math.sin(-midAngle * RADIAN);
-        
-        // Truy cập giá trị của từng phần tử
-        const value = data_pie_chart[index].value;
-        
-        return (
-            <text
-            x={x}
-            y={y}
-            textAnchor={x > cx ? "start" : "end"}
-            dominantBaseline="central"
+  // const data_pie_chart = chart.map(
+  //   (x) => x.name,
+  //   (y) => y.value
+  // );
+
+  const data_pie_chart = [
+    { name: "Hoàn thành", value: 30 },
+    { name: "HT quá hạn", value: 15 },
+  ];
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        let res = await CallApi("nvtron", "GET");
+        console.log(res.data);
+        setChart(res.data);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    fetchData();
+  }, []);
+
+  const COLORS = ["#91cc75", "#ee6766"];
+
+  const sum = data_pie_chart.reduce(
+    (accumulator, currentValue) => accumulator + currentValue.value,
+    0
+  );
+  const data_pie_chart_percentage = data_pie_chart.map((item) => ({
+    ...item,
+    percentage: ((item.value / sum) * 100).toFixed(2),
+  }));
+
+  return (
+    <div className="w-[45vw] ml-[3vw]">
+      <br />
+      <div className="w-[45vw] shadow-2xl rounded-md bg-white">
+        <p className="text-center text-xl font-bold mt-2 pt-3">
+          Tỷ lệ công việc chưa hoàn thành trong tháng 5
+        </p>
+        <div className="flex justify-center items-center">
+          <PieChart width={650} height={360}>
+            <Pie
+              data={data_pie_chart_percentage}
+              cx="50%"
+              cy="50%"
+              label={({ name, value, percentage }) =>
+                `${name}: ${value} (${percentage}%)`
+              }
+              labelLine={{ stroke: "gray", strokeWidth: 1, radius: "40%" }}
+              outerRadius="130"
+              fill="#8884d8"
+              dataKey="value"
             >
-            {value}
-            </text>
-        );
-    };
+              {data_pie_chart_percentage.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={COLORS[index % COLORS.length]}
+                />
+              ))}
+            </Pie>
 
-    return (
-        <div className="w-[55vw]">
-            <br/>
-            <div className="m-auto w-3/4 mb-5 border border-black rounded-xl">
-                <h3 className="text-center">
-                    Tỷ lệ công viêc hoàn thành đúng trong tháng 5
-                </h3>
-                <div className="">
-                    <PieChart width={550} height={450}>
-                        <Pie
-                            data={data_pie_chart}
-                            isAnimationActive={true} // Animation
-                            cx="50%"
-                            cy="50%"
-                            label={renderCustom}
-                            outerRadius={160}
-                            fill="#8884d8"
-                            dataKey="value"
-                        >
-                            {data_pie_chart.map((entry, index) => (
-                            <Cell
-                                key={`cell-${index}`}
-                                fill={COLORS[index % COLORS.length]}
-                            />
-                            ))}
-                        </Pie>
-                        <Legend />
-                    </PieChart>{" "}
-                </div>
-            </div>
+            {/* <Legend /> */}
+          </PieChart>{" "}
         </div>
-    );
+      </div>
+    </div>
+  );
 }
 
 export default Pie_Chart;

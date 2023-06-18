@@ -4,15 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { AiOutlineDown } from "react-icons/ai";
 import { GrNext } from "react-icons/gr";
 
-function Header() {
-  const [selectedOption, setSelectedOption] = useState("Tháng 5");
+function Header({ handleOptionClick }) {
+  const [selectedOption, setSelectedOption] = useState("");
   const [showOptions, setShowOptions] = useState(false);
   let navigate = useNavigate();
-
-  const handleOptionClick = (option) => {
-    setSelectedOption(option);
-    setShowOptions(false);
-  };
 
   const ChooseLogout = () => {
     // xóa thông tin đăng nhập được lưu trữ

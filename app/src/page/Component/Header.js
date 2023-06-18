@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Logo from "../../../img/Logo_VNPT.png";
+import Logo from "../../img/Logo_VNPT.png";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineDown } from "react-icons/ai";
 import { GrNext } from "react-icons/gr";
@@ -23,7 +23,7 @@ function Header() {
   };
 
   return (
-    <div className="flex bg-[#178df0]  w-full h-[5rem] top-0 shadow-2xl">
+    <div className="flex bg-[#178df0]  w-full h-[5rem] top-0">
       <div className="flex w-20 h-20 ml-[10vw]">
         <img className="bg-white" src={Logo} alt="Logo" />
       </div>
@@ -174,7 +174,7 @@ function Header() {
         </div>
       </div>
       <button className="justify-center ml-[5vw]" onClick={ChooseLogout}>
-        <span className="px-3 py-1 bg-blue-500 text-white rounded-full text-[1.2rem] font-bold">
+        <span className="px-3 py-1 bg-[#ee6766] text-white rounded-full text-[1.2rem] font-bold">
           Đăng xuất
         </span>
       </button>
