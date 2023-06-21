@@ -21,20 +21,22 @@ class NhanVienController extends Controller
 {
 
 
+
     public function index(Request $request)
     {
         $id = 1;
         $thang = $request->input('thang');
-      
         
+
         if ($id && $thang) {
             $thang=ltrim($thang,'0');
             
-
+            
             //công việc và giờ làm được giao trong tháng 
 
             $CongViecVaGio = BaoCaoHangNgay::SoGioLamTheoLcvId($id, $thang);
-
+            $thangh=["name"=>"thang","month"=>$thang];
+            $CongViecVaGio[]=$thangh;
             return response()->json(
                 $CongViecVaGio         
                 );
@@ -49,7 +51,8 @@ class NhanVienController extends Controller
  //công việc và giờ làm được giao trong tháng 5
 
  $CongViecVaGio = BaoCaoHangNgay::SoGioLamTheoLcvId($id, $thang);
-
+ $thangh=["name"=>"thang","month"=>$thang];
+$CongViecVaGio[]=$thangh;
  return response()->json(
      $CongViecVaGio         
      );

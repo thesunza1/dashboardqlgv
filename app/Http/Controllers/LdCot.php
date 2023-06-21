@@ -47,7 +47,7 @@ foreach ($donvi as $value) {
       
         if ($cv->dv_id == $value->dv_id) {
             
-            if ($cv->cv_trangthai == 1) { // Đang thực hiện
+            if ($cv->cv_trangthai > 1) { // Đang thực hiện
                 $tongcv++; // Tăng tổng công việc lên 1
             }
             if ($cv->cv_hanhoanthanh >= $hientai && $cv->cv_hanhoanthanh <= $ngay) { // Sắp đến hạn hoàn thành
@@ -72,6 +72,8 @@ foreach ($donvi as $value) {
             $CvConArray[] = $valueCv; // Thêm mảng CvCon tương ứng vào mảng $CvConArray
         }
     }
+        $total=$sapdenhan+$hethan;
+        $tile=($tongcv-$total)/$tongcv*100;
         // Thêm mới một phần tử vào mảng $result
         $result[] = array(
             'dv_id' => $value->dv_id,
@@ -79,7 +81,8 @@ foreach ($donvi as $value) {
             'tongcv' => $tongcv,
             'sapdenhan' => $sapdenhan,
             'hethan' => $hethan,
-            'tentruongphon' => $ten,
+            'tile'=>$tile,
+            'tentruongphong' => $ten,
             'CvCon' => $CvConArray
         );
     
@@ -114,18 +117,19 @@ foreach ($donvi as $value) {
     $hethan = 0;
     $tongcv=0;
     $ten="";
+    $tile=0;
     // Lặp qua các công việc
     foreach ($congviec as $cv) {
       
         if ($cv->dv_id == $value->dv_id) {
             
-            if ($cv->cv_trangthai == 1) { // Đang thực hiện
+            if ($cv->cv_trangthai > 1) { // Đang thực hiện
                 $tongcv++; // Tăng tổng công việc lên 1
             }
-            if ($cv->cv_trangthai == 1&&$cv->cv_hanhoanthanh >= $hientai && $cv->cv_hanhoanthanh <= $ngay) { // Sắp đến hạn hoàn thành
+            if ($cv->cv_trangthai > 1&&$cv->cv_hanhoanthanh >= $hientai && $cv->cv_hanhoanthanh <= $ngay) { // Sắp đến hạn hoàn thành
                 $sapdenhan++; // Tăng số lượng công việc sắp hết hạn lên 1
             }
-            if ( $cv->cv_trangthai == 1&&$hientai>$cv->cv_hanhoanthanh ) { // Hết hạn hoàn thành
+            if ( $cv->cv_trangthai > 1&&$hientai>$cv->cv_hanhoanthanh ) { // Hết hạn hoàn thành
                 $hethan++; // Tăng số lượng công việc đã hết hạn hoàn thành lên 1
             }
         }
@@ -144,6 +148,9 @@ foreach ($donvi as $value) {
             $CvConArray[] = $valueCv; // Thêm mảng CvCon tương ứng vào mảng $CvConArray
         }
     }
+    if($tongcv!=0){
+    $total=$sapdenhan+$hethan;
+    $tile=($tongcv-$total)/$tongcv*100;}
         // Thêm mới một phần tử vào mảng $result
         $result[] = array(
             'dv_id' => $value->dv_id,
@@ -151,7 +158,8 @@ foreach ($donvi as $value) {
             'tongcv' => $tongcv,
             'sapdenhan' => $sapdenhan,
             'hethan' => $hethan,
-            'tentruongphon' => $ten,
+            'tile'=>$tile,
+            'tentruongphong' => $ten,
             'CvCon' => $CvConArray
         );
     

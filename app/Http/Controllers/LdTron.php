@@ -16,21 +16,25 @@ class LdTron extends Controller
         $thang=$request->input('thang');
         
         if($thang){
-            $month = $thang->format('m');
-            $th=ltrim($month,'0');
+            //$month = $thang->format('m');
+            $th=ltrim($thang,'0');
+            
             $TongCvTHT=CongViec::CongViecHoanThanhDv($thang);
             $TongCvTCHT=CongViec::CongViecChuaHoanThanhDv($thang);
             $TongCvTDL=CongViec::CongViecDangLamDv($thang);
-            $TCVHT=["name"=>"TongCvHT","value"=>"$TongCvTHT"];
-            $TCVCHT=["name"=>"TongCVCHT","value"=>"$TongCvTCHT"];
-            $TCVDL=["name"=>"TongCvDL","value"=>"$TongCvTDL"];
-            $tha=["name"=>"thang","value"=>"$th"];
-            $tron=[
-                "TongCvHT"=>$TongCvTHT,
-                "TongCvCHT"=>$TongCvTCHT,
-                "TongCvDL"=>$TongCvTDL,
-
-            ];
+            $total=$TongCvTHT+$TongCvTCHT+$TongCvTDL;
+            $TLHT=round((($TongCvTHT/$total)*100),2) ;
+            $TLCHT=round((($TongCvTCHT/$total)*100),2);
+            $TLQH=round((($TongCvTDL/$total)*100),2);
+            $tileHT=["name"=>"tileHT","value"=>"$TLHT%"];
+            $tileCHT=["name"=>"tileCHT","value"=>"$TLCHT%"];
+            $tileQH=["name"=>"tileQH","value"=>"$TLQH%"];
+            $TCVHT=["name"=>"TongCvHT","value"=>"$TongCvTHT","tile"=>"$TLHT%"];
+            $TCVCHT=["name"=>"TongCVCHT","value"=>"$TongCvTCHT","tile"=>"$TLCHT%"];
+            $TCVDL=["name"=>"TongCvDL","value"=>"$TongCvTDL","tile"=>"$TLQH%"];
+            $tha=["name"=>"thang","month"=>$th];
+            
+            
             return response()->json([$TCVHT,$TCVCHT,$TCVDL,$tha]);
         
         }
@@ -42,18 +46,18 @@ class LdTron extends Controller
             $TongCvTHT=CongViec::CongViecHoanThanhDv($thang);
             $TongCvTCHT=CongViec::CongViecChuaHoanThanhDv($thang);
             $TongCvTDL=CongViec::CongViecDangLamDv($thang);
-
+            
+            
             $TCVHT=["name"=>"TongCvHT","value"=>"$TongCvTHT"];
             $TCVCHT=["name"=>"TongCVCHT","value"=>"$TongCvTCHT"];
             $TCVDL=["name"=>"TongCvDL","value"=>"$TongCvTDL"];
-            $tha=["name"=>"thang","value"=>"$th"];
-            $tron=[
-                "TongCvHT"=>$TongCvTHT,
-                "TongCvCHT"=>$TongCvTCHT,
-                "TongCvDL"=>$TongCvTDL,
-
-            ];
-            return response()->json([$TCVHT,$TCVCHT,$TCVDL,$tha]);
+            $tha=["name"=>"thang","month"=>$th];
+            $total=$TongCvTHT+$TongCvTCHT+$TongCvTDL;
+            $tileHT=["name"=>"tileHT","value"=>"($TongCvTHT/$total)*100%"];
+            $tileCHT=["name"=>"tileCHT","value"=>"$TongCvTCHT/$total"];
+            $tileQH=["name"=>"tileQH","value"=>"$TongCvTDL/$total"];
+            
+            return response()->json([$TCVHT,$TCVCHT,$TCVDL,$tileHT,$tileCHT,$tileQH,$tha]);
         
         }
     }

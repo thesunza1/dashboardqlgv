@@ -159,7 +159,7 @@ class BaoCaoHangNgay extends Model
                     'lcv_ten' => $cv->lcv_ten,
                     'so_gio_lam' => "$soGioLam",
                     'lcv_id' => $cv->lcv_id,
-                    'thang'=>"$thang"
+                    
                 ];
             }
         }

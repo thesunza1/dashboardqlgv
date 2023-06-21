@@ -37,7 +37,7 @@ class LanhdaoController extends Controller
                 
                 
             }
-            $tha=["name"=>"thang","value"=>"$th"];
+            $tha=["name"=>"thang","month"=>"$th"];
             $ten1[]=$tha;
             
             return response()->json($ten1);
@@ -57,7 +57,7 @@ class LanhdaoController extends Controller
                 
                 
             }
-            $tha=["name"=>"thang","value"=>"$th"];
+            $tha=["name"=>"thang","month"=>"$th"];
             $ten1[]=$tha;
             
             return response()->json($ten1);

@@ -45,6 +45,7 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             //\App\Http\Middleware\VerifyJWTToken::class,
+            \App\Http\Middleware\ThangMiddleware::class,
         ],
     ];
 
@@ -55,6 +56,11 @@ class Kernel extends HttpKernel
      *
      * @var array<string, class-string|string>
      */
+
+     protected $routeMiddleware = [
+        // ...
+        'thang' => \App\Http\Middleware\ThangMiddleware::class,
+    ];
     protected $middlewareAliases = [
         'auth' => \App\Http\Middleware\Authenticate::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
@@ -66,5 +72,6 @@ class Kernel extends HttpKernel
         'signed' => \App\Http\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+      
     ];
 }

@@ -94,7 +94,8 @@ public function scopeCongViecChuaHoanThanh($query, $id,$thang){
 }
 public function scopeCongViecChuaHoanThanhQH($query, $id,$thang){
     return $query
-    ->where('cv_hanhoanthanh','<',$thang)
+    ->CvChaThang($id,$thang)
+    ->wheremonth('cv_hanhoanthanh','<',$thang)
     ->CvChaThang($id,$thang)
     ->where('cv_tiendo','<',100)
     
@@ -133,11 +134,11 @@ public function scopeBangConDv($query,$thang)
     //$currentMonth = date('m');
     return $query
                 ->join('nhanvien', 'nhanvien.nv_id', '=', 'congviec.nv_id')
-                ->select('nhanvien.nv_ten','congviec.dv_id','congviec.cv_id' ,'congviec.cv_tgthuchien', 'congviec.cv_hanhoanthanh', 'congviec.cv_thgianhoanthanh', 'congviec.cv_trangthai', 'congviec.cv_tiendo', 'congviec.cv_cv_cha')
+                ->select('nhanvien.nv_ten','congviec.cv_ten','congviec.dv_id','congviec.cv_id' ,'congviec.cv_tgthuchien', 'congviec.cv_hanhoanthanh', 'congviec.cv_thgianhoanthanh', 'congviec.cv_trangthai', 'congviec.cv_tiendo', 'congviec.cv_cv_cha')
 
 
                 ->where('congviec.cv_cv_cha', '=', 0)
-                
+                ->where('congviec.cv_trangthai','>',1)
                 ->whereMonth('congviec.CV_THGIANBATDAU', '<=', $thang)
                 ->whereYear('congviec.CV_THGIANBATDAU', '<=', Carbon::now()->year)
                 ->whereYear('congviec.cv_hanhoanthanh', '>=', Carbon::now()->year)
@@ -149,7 +150,7 @@ public function scopeBangConDv($query,$thang)
                                 ->whereMonth('congviec.cv_thgianhoanthanh', '>=', $thang);
                         });
                 })
-                ->groupBy('nhanvien.nv_ten','congviec.dv_id','congviec.cv_id' ,'congviec.cv_tgthuchien', 'congviec.cv_hanhoanthanh', 'congviec.cv_thgianhoanthanh', 'congviec.cv_trangthai', 'congviec.cv_tiendo', 'congviec.cv_cv_cha');
+                ->groupBy('nhanvien.nv_ten','congviec.cv_ten','congviec.dv_id','congviec.cv_id' ,'congviec.cv_tgthuchien', 'congviec.cv_hanhoanthanh', 'congviec.cv_thgianhoanthanh', 'congviec.cv_trangthai', 'congviec.cv_tiendo', 'congviec.cv_cv_cha');
             }
 public function scopeCvDvT($query,$thang)
 {
@@ -214,7 +215,14 @@ public function scopeCongViecDangLamDv($query,$thang){
     ->CvDvT($thang)
     ->where('cv_trangthai',1)
     ->where('cv_tiendo','<',100)
-    ->where('cv_hanhoanthanh','>=',$ngay)
+    ->where(function ($query) use ($thang) {
+        $query->whereNull('cv_thgianhoanthanh')
+            ->wheremonth('cv_hanhoanthanh', '<', $thang)
+            ->orWhere(function ($query) use ($thang) {
+                $query->whereNotNull('cv_thgianhoanthanh')
+                ->wherecolumn('cv_hanhoanthanh', '<', 'cv_thgianhoanthanh');
+            });
+    })
     ->count();
 }
 public function scopeBangDv($query)

@@ -13,8 +13,9 @@ class NvTron extends Controller
     $id=1;
     $thang=request()->input('thang');
     if ($id&&$thang) {
-        $month = $thang->format('m');
-        $th=ltrim($month,'0');
+        //$month = $thang->format('m');
+        $th=ltrim($thang,'0');
+        
         
 
 //Tổng công việc cha trong tháng
@@ -37,21 +38,25 @@ class NvTron extends Controller
 
        
        
-        $TCV=["name"=>"TongCv","value"=>"$TongCv"];
-       $TCVCHT=["name"=>"TongCvChuaHT","value"=>"$TongCvChuaHoanThanh"];
-       $TCVCHT=["name"=>"TongCvChuaHT","value"=>"$TongCvChuaHoanThanh"];
-       $TCVCHTQH=["name"=>"TongCvChuaHTQH","value"=>"$TongCvChuaHoanThanhQH"];
-       $TCVHT=["name"=>"TongCvHT","value"=>"$TongCvHoanThanh"];
-       $TCVHTQH=["name"=>"TongCvHTQH","value"=>"$TongCvHoanThanhQuaHan"];
-       $tha=["name"=>"thang","value"=>"$th"];
-        $nvtron = [
-            "TongCv" => $TongCv,
-            "TongCvChuaHT" => $TongCvChuaHoanThanh,
-            "TongCvChuaHTQH" => $TongCvChuaHoanThanhQH,
-            "TongCvHoanThanh" => $TongCvHoanThanh,
-            "TongCvHoanThanhQH" => $TongCvHoanThanhQuaHan,
-            "thang"=>$th
-        ];
+        $TotalHT=$TongCvHoanThanh+$TongCvHoanThanhQuaHan;
+        $TotalCHT=$TongCvChuaHoanThanh+$TongCvChuaHoanThanhQH;
+        $TLHT=round((($TongCvHoanThanh/$TotalHT)*100),2) ;
+        $TLHTQH=round((($TongCvHoanThanhQuaHan/$TotalHT)*100),2) ;
+        $TLCHT=round((($TongCvChuaHoanThanh/$TotalCHT)*100),2) ;
+        $TLCHTQH=round((($TongCvChuaHoanThanhQH/$TotalCHT)*100),2) ;
+
+        
+
+
+
+       
+       $TCV=["name"=>"TongCv","value"=>"$TongCv"];
+       $TCVCHT=["name"=>"TongCvChuaHT","value"=>"$TongCvChuaHoanThanh","tile"=>"$TLCHT%"];
+       $TCVCHTQH=["name"=>"TongCvChuaHTQH","value"=>"$TongCvChuaHoanThanhQH","tile"=>"$TLCHTQH%"];
+       $TCVHT=["name"=>"TongCvHT","value"=>"$TongCvHoanThanh","tile"=>"$TLHT%"];
+       $TCVHTQH=["name"=>"TongCvHTQH","value"=>"$TongCvHoanThanhQuaHan","tile"=>"$TLHTQH%"];
+       $tha=["name"=>"thang","month"=>"$th"];
+
         
         
         return response()->json([$TCV,$TCVCHT,$TCVCHTQH,$TCVHT,$TCVHTQH,$tha]);
@@ -80,33 +85,30 @@ class NvTron extends Controller
 //tổng công việc chưa hoàn thành quá hạn
         $TongCvChuaHoanThanhQH=CongViec::CongViecChuaHoanThanhQH($id,$thang);
 
+        $TotalHT=$TongCvHoanThanh+$TongCvHoanThanhQuaHan;
+        $TotalCHT=$TongCvChuaHoanThanh+$TongCvChuaHoanThanhQH;
+        $TLHT=round((($TongCvHoanThanh/$TotalHT)*100),2) ;
+        $TLHTQH=round((($TongCvHoanThanhQuaHan/$TotalHT)*100),2) ;
+        $TLCHT=round((($TongCvChuaHoanThanh/$TotalCHT)*100),2) ;
+        $TLCHTQH=round((($TongCvChuaHoanThanh/$TotalCHT)*100),2) ;
+
+        
 
 
 
        
        $TCV=["name"=>"TongCv","value"=>"$TongCv"];
-       $TCVCHT=["name"=>"TongCvChuaHT","value"=>"$TongCvChuaHoanThanh"];
-       $TCVCHT=["name"=>"TongCvChuaHT","value"=>"$TongCvChuaHoanThanh"];
-       $TCVCHTQH=["name"=>"TongCvChuaHTQH","value"=>"$TongCvChuaHoanThanhQH"];
-       $TCVHT=["name"=>"TongCvHT","value"=>"$TongCvHoanThanh"];
-       $TCVHTQH=["name"=>"TongCvHTQH","value"=>"$TongCvHoanThanhQuaHan"];
-       $tha=["name"=>"thang","value"=>"$th"];
-        $nvtron = [
-            "TongCv" => $TongCv,
-            "TongCvChuaHT" => $TongCvChuaHoanThanh,
-            "TongCvChuaHTQH" => $TongCvChuaHoanThanhQH,
-            "TongCvHoanThanh" => $TongCvHoanThanh,
-            "TongCvHoanThanhQH" => $TongCvHoanThanhQuaHan,
-            "thang"=>$th
-        ];
+       $TCVCHT=["name"=>"TongCvChuaHT","value"=>"$TongCvChuaHoanThanh","tile"=>"$TLCHT%"];
+       $TCVCHTQH=["name"=>"TongCvChuaHTQH","value"=>"$TongCvChuaHoanThanhQH","tile"=>"$TLCHTQH%"];
+       $TCVHT=["name"=>"TongCvHT","value"=>"$TongCvHoanThanh","tile"=>"$TLHT%"];
+       $TCVHTQH=["name"=>"TongCvHTQH","value"=>"$TongCvHoanThanhQuaHan","tile"=>"$TLHTQH%"];
+       $tha=["name"=>"thang","month"=>"$th"];
+        
         
         
         return response()->json([$TCV,$TCVCHT,$TCVCHTQH,$TCVHT,$TCVHTQH,$tha]);
         
     }
-    if ($id == null) {
-        
-        return redirect('/api/');
-    }
+    
 }
 }

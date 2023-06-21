@@ -14,7 +14,7 @@ class NvCot extends Controller
     {
         $id = 1;
         $thang = $request->input('thang');
-
+        
         if($id&&$thang){
             
             
@@ -32,7 +32,8 @@ class NvCot extends Controller
 
            
             $Gio= ["name"=>"TongGioLam","value" => $TongGioLam];
-            $tha= [ "name"=>"thang","value"=>"$th"];
+            $tha= [ "name"=>"thang","month"=>"$th"];
+            
             $GCv[]=$Gio;
             $GCv[]=$tha;
             
@@ -53,8 +54,8 @@ class NvCot extends Controller
 
 
            
-            $Gio= ["TongGioLam" => $TongGioLam];
-            $tha= [ "thang"=>"$th"];
+            $Gio= ["name"=>"TongGioLam","value" => $TongGioLam];
+            $tha= [ "name"=>"thang","month"=>"$th"];
             $GCv[]=$Gio;
             $GCv[]=$tha;
             
