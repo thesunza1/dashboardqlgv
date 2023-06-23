@@ -8,6 +8,7 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
+  Tooltip,
   Cell,
 } from "recharts";
 
@@ -37,14 +38,14 @@ function Bar_Manager() {
   // const domainMax = dataMax + 15; // tăng giá trị lớn nhất thêm 5
 
   return (
-    <div className="w-[45vw] ml-[4vw]">
+    <div className="w-[48vw] ml-[3vw] z-1">
       <br />
       <div className="shadow-2xl rounded-md bg-white">
         <p className="text-center text-xl font-bold py-3">
           Thời gian làm việc của các phòng ban trong tháng{" "}
-          {chart.find((thang) => thang.name === "thang")?.value}
+          {chart.find((thang) => thang.name === "thang")?.month}
         </p>
-        <div className="w-full h-[400px] mb-10 flex justify-center items-center">
+        <div className="w-full h-[400px] flex justify-center items-center">
           {chart.length !== 0 && (
             <ComposedChart
               width={600}
@@ -60,15 +61,22 @@ function Bar_Manager() {
                 angle={70}
                 tickMargin={50}
                 height={110}
+                padding={{ right: 30 }}
+                dx={-15} // Điều chỉnh vị trí của tick
+                dy={-30} // Điều chỉnh vị trí của label
+                textAnchor="start" // Căn lề của label theo hướng end (bên phải)
               />
               <YAxis padding={{ top: 20 }} />
               <Bar dataKey="value" barSize={barSize}>
                 {chart.map((entry, index) => {
-                  const fillColor = index % 2 === 0 ? "#3e92cc" : "#91cc75"; // thay đổi màu fill tương ứng
+                  const fillColor = "#3e92cc"; // thay đổi màu fill tương ứng
                   return <Cell key={`cell-${index}`} fill={fillColor} />;
                 })}
                 <LabelList dataKey="value" position="top" fill="blue" />
               </Bar>
+              <Tooltip
+                formatter={(value, name) => [value + " giờ làm", name]}
+              />
             </ComposedChart>
           )}
         </div>

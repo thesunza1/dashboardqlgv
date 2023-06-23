@@ -1,66 +1,190 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Collapse from "@mui/material/Collapse";
 import IconButton from "@mui/material/IconButton";
 import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { BiDownload } from "react-icons/bi";
 import { TbArrowsSort } from "react-icons/tb";
 import { AiOutlineDown } from "react-icons/ai";
 import { GrNext } from "react-icons/gr";
-import PropTypes from "prop-types";
-import { useTheme } from "@mui/material/styles";
-import TableFooter from "@mui/material/TableFooter";
-import TablePagination from "@mui/material/TablePagination";
-import { BiFirstPage, BiLastPage } from "react-icons/bi";
-import { GrFormNext, GrFormPrevious } from "react-icons/gr";
-import Sort from "../../Home/Components/Table/Sort";
-import CallApi from "../../../API/CallAPI";
 import XLSX from "xlsx";
+import moment from "moment";
+import CallApi from "../../../API/CallAPI";
+
+function Row(props) {
+  const { row } = props;
+  const [open, setOpen] = useState(false);
+  const [hover, setHover] = useState(false);
+
+  const onMouseEnter = () => {
+    setHover(true);
+  };
+
+  const onMouseLeave = () => {
+    setHover(false);
+  };
+
+  return (
+    <>
+      <TableRow
+        sx={{ "& > *": { borderBottom: "unset" } }}
+        className={props.index % 2 === 0 ? "bg-blue-50" : ""}
+        style={{
+          height: "50px",
+          fontSize: "1.25rem",
+          backgroundColor: hover ? "#d3d3d3" : "",
+        }}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+      >
+        <th className="text-left font-medium">
+          {/* icon sổ ra cv con */}
+          <IconButton
+            aria-label="expand row"
+            size="small"
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <AiOutlineDown /> : <GrNext />}
+          </IconButton>
+          {row.dv_ten}
+        </th>
+        <th className="text-left font-normal">{row.tentruongphong}</th>
+        <th className="text-center font-medium">{row.tongcv}</th>
+        <th className="text-center font-normal">{row.sapdenhan}</th>
+        <th className="text-center font-normal">{row.hethan}</th>
+        <th className="text-center font-normal">{row.tile}%</th>
+      </TableRow>
+
+      {/* Công việc của từng đơn vị */}
+      <TableRow>
+        <TableCell style={{ paddingBottom: 5, paddingTop: 5 }} colSpan={6}>
+          <Collapse in={open} timeout="auto" unmountOnExit>
+            <Box sx={{ margin: 1 }}>
+              <Table size="small" aria-label="purchases">
+                {/* Head của công việc con */}
+                <TableHead className="bg-[#6a994e] text-white">
+                  <tr>
+                    <th className="text-left">
+                      <p className="text-lg ml-2">Công việc đã giao</p>
+                    </th>
+                    <th className="w-[14vw]">
+                      <div className="flex text-lg ">Người đảm nhận</div>
+                    </th>
+                    <th className="w-[10vw]">
+                      <div className="flex text-lg justify-center items-center">
+                        <button>
+                          <p>Thời gian </p>
+                          <p>thực hiện </p>
+                        </button>
+                        <button className="ml-1 text-xl bg-blue-300">
+                          <TbArrowsSort />
+                        </button>
+                      </div>
+                    </th>
+                    <th className="w-[12vw] text-center">
+                      <div className="flex text-lg justify-center items-center">
+                        <button>
+                          <p>Thời hạn</p>
+                          <p>công việc</p>
+                        </button>
+                        <button className="ml-1 text-xl bg-blue-300">
+                          <TbArrowsSort />
+                        </button>
+                      </div>
+                    </th>
+                    <th className="w-[12vw] text-center">
+                      <div className="flex text-lg justify-center items-center">
+                        <button>
+                          <p>Thời gian</p>
+                          <p>hoàn thành</p>
+                        </button>
+                        <button className="ml-1 text-xl bg-blue-300">
+                          <TbArrowsSort />
+                        </button>
+                      </div>
+                    </th>
+                    <th className="w-[10vw] text-center">
+                      <div className="flex text-lg justify-center items-center">
+                        <button>
+                          <p>Trạng thái</p>
+                          <p>công việc</p>
+                        </button>
+                        <button className="ml-1 text-xl bg-blue-300">
+                          <TbArrowsSort />
+                        </button>
+                      </div>
+                    </th>
+                    <th className="w-[10vw]">
+                      <div className="flex text-lg justify-center items-center text-center">
+                        <button>
+                          <p>Tỷ lệ</p>
+                          <p>hoàn thành</p>
+                        </button>
+                        <button className="ml-1 text-xl bg-blue-300">
+                          <TbArrowsSort />
+                        </button>
+                      </div>
+                    </th>
+                  </tr>
+                </TableHead>
+                <TableBody>
+                  {row.CvCon.map((CvConRow) => (
+                    <TableRow
+                      key={CvConRow.cv_id}
+                      className="border-x border-b h-10"
+                    >
+                      <td className="text-left text-lg pl-3">
+                        {CvConRow.cv_ten}
+                      </td>
+
+                      <td className="text-left text-lg">{CvConRow.nv_ten}</td>
+
+                      <td className="text-center text-lg">
+                        {CvConRow.cv_tgthuchien}
+                      </td>
+
+                      <td className="text-center text-lg">
+                        {CvConRow.cv_hanhoanthanh
+                          ? moment(CvConRow.cv_hanhoanthanh).format(
+                              "DD/MM/YYYY"
+                            )
+                          : ""}
+                      </td>
+
+                      <td className="text-center text-lg">
+                        {CvConRow.cv_thgianhoanthanh
+                          ? moment(CvConRow.cv_thgianhoanthanh).format(
+                              "DD/MM/YYYY"
+                            )
+                          : ""}
+                      </td>
+
+                      <td className="text-center text-lg">
+                        {CvConRow.cv_trangthai}
+                      </td>
+
+                      <td className="text-center text-lg">
+                        {CvConRow.cv_tiendo}%
+                      </td>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </>
+  );
+}
 
 export default function CollapsibleTable() {
-  function exportToExcel() {
-    const table = document.getElementsByTagName("table")[0]; // lấy table HTML đầu tiên trong document
-    const worksheet = XLSX.utils.table_to_sheet(table);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Danh sách công việc");
-    const date = new Date().toISOString().slice(0, 10);
-    const filename = `Danh sách công việc - ${date}.xlsx`;
-    XLSX.writeFile(workbook, filename);
-  }
-  function SortButton() {
-    const [numbers, setNumbers] = useState([]);
-    const [ascendingOrder, setAscendingOrder] = useState(true);
-    const [iconColor, setIconColor] = useState("text-black");
-
-    const sortNumbers = () => {
-      const sortedNumbers = [...numbers].sort(
-        ascendingOrder ? (a, b) => a - b : (a, b) => b - a
-      );
-      setNumbers(sortedNumbers);
-      setAscendingOrder(!ascendingOrder);
-      setIconColor(ascendingOrder ? "text-white" : "text-black");
-    };
-
-    return (
-      <div>
-        <button
-          className="ml-1 text-xl bg-blue-300 text-black"
-          onClick={sortNumbers}
-        >
-          <TbArrowsSort className={`sort-icon ${iconColor}`} />
-          {/* {ascendingOrder ? "Tăng dần" : "Giảm dần"} */}
-        </button>
-        <ul>
-          {numbers.map((number) => (
-            <li key={number}>{number}</li>
-          ))}
-        </ul>
-      </div>
-    );
-  }
-  const [open, setOpen] = useState(false);
   const [data, setData] = useState([]);
 
   useEffect(() => {
@@ -77,58 +201,52 @@ export default function CollapsibleTable() {
     dataTable();
   }, []);
 
-  const cv_tiendo = () => {};
+  function exportToExcel() {
+    const table = document.getElementsByTagName("table")[0]; // lấy table HTML đầu tiên trong document
+    const worksheet = XLSX.utils.table_to_sheet(table);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Danh sách công việc");
+    const date = new Date().toISOString().slice(0, 10);
+    const filename = `Danh sách công việc - ${date}.xlsx`;
+    XLSX.writeFile(workbook, filename);
+  }
 
   return (
     <div className="w-full">
-      <div className="m-auto p-5">
+      <div className="m-auto px-5 py-3">
         <TableContainer component={Paper}>
-          <div className="flex  bg-[#1982c4] w-full h-16 items-center justify-between px-20">
-            <p className="ml-5 text-white text-4xl font-bold">
-              Danh sách công việc của mỗi đơn vị
+          {/* Phần Excel */}
+          <div className="flex  bg-[#1982c4] w-full h-12 items-center justify-between px-20">
+            <p className="ml-5 text-white text-3xl font-bold">
+              Danh sách các công việc
             </p>
             <button
               onClick={exportToExcel}
-              className="flex mr-5 bg-[#6a994e] p-2 rounded-lg items-center"
+              className="flex mr-5 bg-[#6a994e] hover:bg-green-500 p-1 rounded-lg items-center"
             >
-              <p className="text-xl text-white font-bold">Xuất Excel</p>
-              <div className="ml-2 text-white text-2xl">
+              <p className="text-lg text-white font-bold">Xuất Excel</p>
+              <div className="ml-2 text-white text-xl">
                 <BiDownload />
               </div>
             </button>
           </div>
           <Table aria-label="collapsible table">
-            <thead>
-              <tr className="border-x">
+            <TableHead>
+              <tr>
                 <th className="text-left">
-                  <p className="text-2xl ml-2">Tên đơn vị</p>
+                  <p className="text-xl ml-2">Tên đơn vị</p>
                 </th>
-                <th className="w-[20vw] text-center">
-                  <div className="flex justify-center items-center">
-                    <div className="text-lg">
-                      <p>Lãnh đạo</p>
-                      <p>đơn vị</p>
-                    </div>
-                    <button className="ml-1 text-xl bg-blue-300">
-                      <TbArrowsSort />
-                    </button>
+                <th className="w-[15vw]">
+                  <div className="flex items-center">
+                    <div className="text-lg">Trưởng đơn vị</div>
                   </div>
                 </th>
                 <th className="w-[13vw]">
                   <div className="flex justify-center items-center">
-                    <div className="text-lg">
-                      <p>Tổng CV</p>
+                    <button className="text-lg">
+                      <p>Tổng CV </p>
                       <p>đã giao</p>
-                    </div>
-                    <SortButton />
-                  </div>
-                </th>
-                <th className="w-[13vw] text-center">
-                  <div className="flex justify-center items-center">
-                    <div className="text-lg">
-                      <p>Công việc</p>
-                      <p>sắp đến hạn</p>
-                    </div>
+                    </button>
                     <button className="ml-1 text-xl bg-blue-300">
                       <TbArrowsSort />
                     </button>
@@ -136,10 +254,22 @@ export default function CollapsibleTable() {
                 </th>
                 <th className="w-[13vw] text-center">
                   <div className="flex justify-center items-center">
-                    <div className="text-lg">
+                    <button className="text-lg">
+                      <p>Công việc</p>
+                      <p>sắp tới hạn</p>
+                    </button>
+                    <button className="ml-1 text-xl bg-blue-300">
+                      <TbArrowsSort />
+                    </button>
+                  </div>
+                </th>
+
+                <th className="w-[13vw] text-center">
+                  <div className="flex justify-center items-center">
+                    <button className="text-lg">
                       <p>Công việc</p>
                       <p>quá hạn</p>
-                    </div>
+                    </button>
                     <button className="ml-1 text-xl bg-blue-300">
                       <TbArrowsSort />
                     </button>
@@ -147,10 +277,10 @@ export default function CollapsibleTable() {
                 </th>
                 <th className="w-[13vw] text-center">
                   <div className="flex justify-center items-center">
-                    <div className="text-lg">
+                    <button className="text-lg">
                       <p>Tỷ lệ</p>
                       <p>hoàn thành</p>
-                    </div>
+                    </button>
                     <button className="ml-1 text-xl bg-blue-300">
                       <TbArrowsSort />
                     </button>
@@ -158,271 +288,17 @@ export default function CollapsibleTable() {
                 </th>
               </tr>
               <tr>
-                <th
-                  colSpan={7}
-                  className="bg-blue-500 h-1 border-x border-blue-500"
-                ></th>
+                <th colSpan={6} className="bg-blue-500 h-2"></th>
               </tr>
-            </thead>
-            <tbody>
-              <>
-                {data &&
-                  data.map((dv) => (
-                    <tr
-                      sx={{ "& > *": { borderBottom: "unset" } }}
-                      // className={props.index % 2 === 0 ? "bg-blue-200" : ""}
-                      className="text-lg h-12"
-                    >
-                      <td className="text-left font-medium">
-                        {/* icon sổ ra cv con */}
-                        <IconButton
-                          aria-label="expand row"
-                          size="small"
-                          onClick={() => setOpen(!open)}
-                        >
-                          {open ? <AiOutlineDown /> : <GrNext />}
-                        </IconButton>
-                        {/* tên cv */}
-                        {dv.dv_ten}
-                      </td>
-                      <td className="text-center font-normal">
-                        {dv.tentruongphon}
-                      </td>
-                      <td className="text-center font-normal">{dv.tongcv}</td>
-                      <td className="text-center font-normal">
-                        {dv.sapdenhan}
-                      </td>
-                      <td className="text-center font-normal">{dv.hethan}</td>
-                      <td className="text-center font-medium">
-                        {(dv.tiendo = dv.tongcv - (dv.hethan + dv.sapdenhan))}
-                      </td>
-                    </tr>
-                  ))}
-                <tr>
-                  <th style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-                    <Collapse in={open} timeout="auto" unmountOnExit>
-                      <Box sx={{ margin: 1 }}>
-                        <Table size="small" aria-label="purchases">
-                          <thead className="bg-[#6a994e] text-white">
-                            <tr className="border-x border-black">
-                              <th className="text-left">
-                                <p className="text-lg ml-2">
-                                  Công việc đã giao
-                                </p>
-                              </th>
-                              <th className="w-[12vw] text-center">
-                                <div className="flex justify-center items-center">
-                                  <div className="text-sm">
-                                    <p>Người</p>
-                                    <p>đảm nhận</p>
-                                  </div>
-                                </div>
-                              </th>
-                              <th className="w-[12vw] text-center">
-                                <div className="flex justify-center items-center">
-                                  <div className="text-sm">
-                                    <p>Số giờ</p>
-                                    <p>đã làm</p>
-                                  </div>
-                                  <button className="ml-1 text-xl bg-blue-300">
-                                    <TbArrowsSort />
-                                  </button>
-                                </div>
-                              </th>
-                              <th className="w-[12vw] text-center">
-                                <div className="flex justify-center items-center">
-                                  <div className="text-sm">
-                                    <p>Thời gian</p>
-                                    <p>bắt đầu</p>
-                                  </div>
-                                  <button className="ml-1 text-xl bg-blue-300">
-                                    <TbArrowsSort />
-                                  </button>
-                                </div>
-                              </th>
-                              <th className="w-[12vw] text-center">
-                                <div className="flex justify-center items-center">
-                                  <div className="text-sm">
-                                    <p>Thời gian</p>
-                                    <p>đến hạn</p>
-                                  </div>
-                                  <button className="ml-1 text-xl bg-blue-300">
-                                    <TbArrowsSort />
-                                  </button>
-                                </div>
-                              </th>
-                              <th className="w-[12vw] text-center">
-                                <div className="flex justify-center items-center">
-                                  <div className="text-sm">
-                                    <p>Trạng thái</p>
-                                    <p>công việc</p>
-                                  </div>
-                                  <button className="ml-1 text-xl bg-blue-300">
-                                    <TbArrowsSort />
-                                  </button>
-                                </div>
-                              </th>
-                              <th className="w-[12vw] text-center">
-                                <div className="flex justify-center items-center">
-                                  <div className="text-sm">
-                                    <p>Tỷ lệ</p>
-                                    <p>hoàn thành</p>
-                                  </div>
-                                  <button className="ml-1 text-xl bg-blue-300">
-                                    <TbArrowsSort />
-                                  </button>
-                                </div>
-                              </th>
-                            </tr>
-                          </thead>
-                          {/* <tbody>
-                            {cvCha.congViecCon.map((congViecCon) => (
-                              <tr key={congViecCon.id}>
-                                <th component="th" scope="row">
-                                  {congViecCon.title}
-                                </th>
-                                <th align="center">{congViecCon.actor}</th>
-                                <th align="center">{congViecCon.time}</th>
-                                <th align="center">{congViecCon.deadline}</th>
-                                <th align="center">
-                                  {congViecCon.completionTime}
-                                </th>
-                                <th align="center">{congViecCon.status}</th>
-                                <th align="center">{congViecCon.progress}</th>
-                              </tr>
-                            ))}
-                          </tbody> */}
-                        </Table>
-                      </Box>
-                    </Collapse>
-                  </th>
-                </tr>
-              </>
-            </tbody>
-            {/* <CustomPagination /> */}
+            </TableHead>
+            <TableBody>
+              {data.map((row, index) => (
+                <Row key={row.dv_id} row={row} index={index} />
+              ))}
+            </TableBody>
           </Table>
         </TableContainer>
       </div>
     </div>
-  );
-}
-function HandlePagination(props) {
-  const theme = useTheme();
-  const { count, page, rowsPerPage, onPageChange } = props;
-
-  const handleFirstPageButtonClick = (event) => {
-    onPageChange(event, 0);
-  };
-
-  const handleBackButtonClick = (event) => {
-    onPageChange(event, page - 1);
-  };
-
-  const handleNextButtonClick = (event) => {
-    onPageChange(event, page + 1);
-  };
-
-  const handleLastPageButtonClick = (event) => {
-    onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
-  };
-
-  return (
-    <Box sx={{ flexShrink: 0, ml: 2.5 }}>
-      <IconButton
-        onClick={handleFirstPageButtonClick}
-        disabled={page === 0}
-        aria-label="first page"
-      >
-        {theme.direction === "rtl" ? <BiLastPage /> : <BiFirstPage />}
-      </IconButton>
-      <IconButton
-        onClick={handleBackButtonClick}
-        disabled={page === 0}
-        aria-label="previous page"
-      >
-        {theme.direction === "rtl" ? <GrFormNext /> : <GrFormPrevious />}
-      </IconButton>
-      <IconButton
-        onClick={handleNextButtonClick}
-        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
-        aria-label="next page"
-      >
-        {theme.direction === "rtl" ? <GrFormPrevious /> : <GrFormNext />}
-      </IconButton>
-      <IconButton
-        onClick={handleLastPageButtonClick}
-        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
-        aria-label="last page"
-      >
-        {theme.direction === "rtl" ? <BiFirstPage /> : <BiLastPage />}
-      </IconButton>
-    </Box>
-  );
-}
-
-HandlePagination.propTypes = {
-  count: PropTypes.number.isRequired,
-  onPageChange: PropTypes.func.isRequired,
-  page: PropTypes.number.isRequired,
-  rowsPerPage: PropTypes.number.isRequired,
-};
-
-function CustomPagination() {
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
-
-  // Avoid a layout jump when reaching the last page with empty congViecCon.
-  // const emptyRows =
-  //   page > 0 ? Math.max(0, (1 + page) * rowsPerPage - congViecCon.length) : 0;
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  return (
-    <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 500 }} aria-label="custom pagination table">
-        {/* <tbody>
-          {(rowsPerPage > 0
-            ? congViecCon.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-            : congViecCon
-          ).map((row, index) => (
-            <Row row={row} index={index} />
-          ))}
-
-          {emptyRows > 0 && (
-            <tr style={{ height: 53 * emptyRows }}>
-              <th colSpan={6} />
-            </tr>
-          )}
-        </tbody> */}
-        <TableFooter>
-          <tr>
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 25, { label: "All", value: -1 }]}
-              colSpan={6}
-              // count={congViecCon.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              SelectProps={{
-                inputProps: {
-                  "aria-label": "rows per page",
-                },
-                native: true,
-              }}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-              ActionsComponent={HandlePagination}
-            />
-          </tr>
-        </TableFooter>
-        <Sort />
-      </Table>
-    </TableContainer>
   );
 }

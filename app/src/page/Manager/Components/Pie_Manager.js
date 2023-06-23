@@ -14,35 +14,19 @@ function Pie_Manager() {
         let res = await CallApi("ldtron", "GET");
         console.log("Tròn", res.data);
         setData(() => {
-          const data = res.data
-            .filter((data) => {
-              return (
-                data.name === "TongCvHT" ||
-                data.name === "TongCVCHT" ||
-                data.name === "TongCvDL"
-              );
-            })
-            .map((number) => {
-              if (number.name === "TongCvHT") {
-                number.name = "CVHT";
-              } else if (number.name === "TongCVCHT") {
-                number.name = "Chưa HT";
-              } else if (number.name === "TongCvDL") {
-                number.name = "CV Đã Làm";
-              }
-              number.value = parseInt(number.value);
-              return number;
-            });
+          const data = res.data.map((number) => {
+            if (number.name === "TongCvHT") {
+              number.name = "CVHT";
+            } else if (number.name === "TongCVCHT") {
+              number.name = "Chưa HT";
+            } else if (number.name === "TongCvDL") {
+              number.name = "Quá Hạn";
+            }
+            number.value = parseInt(number.value);
+            return number;
+          });
 
-          const sum = data.reduce(
-            (accumulator, currentValue) => accumulator + currentValue.value,
-            0
-          );
-          const dataPercentage = data.map((item) => ({
-            ...item,
-            percentage: ((item.value / sum) * 100).toFixed(2),
-          }));
-          return dataPercentage;
+          return data;
         });
       } catch (error) {
         console.error(error);
@@ -52,24 +36,29 @@ function Pie_Manager() {
   }, []);
 
   return (
-    <div className="w-[50vw] ml-[2vw] pr-[4vw]">
+    <div className="w-[48vw] ml-[2vw] z-0">
       <br />
-      <div className="w-[45vw] mb-10 shadow-2xl rounded-md bg-white">
+      <div className="w-[45vw] shadow-2xl rounded-md bg-white">
         <p className="text-center text-xl font-bold py-3">
-          Tổng số công viêc trong tháng{" "}
-          {data.find((thang) => thang.name === "thang")?.value}
+          Tỉ lệ công viêc trong tháng{" "}
+          {data.find((thang) => thang.name === "thang")?.month}
         </p>
         <div className="flex justify-center items-center">
           {data.length !== 0 && (
             <PieChart width={750} height={400}>
               <Pie
-                data={data}
+                data={data.filter((cv) => {
+                  return cv.name !== "thang";
+                })}
                 dataKey="value"
                 cx="50%"
                 cy="50%"
-                label={({ name, value, percentage }) =>
-                  `${name}: ${value} (${percentage}%)`
-                }
+                label={({ name, value, tile }) => {
+                  if (value === 0) {
+                    return null;
+                  }
+                  return `${name}: ${tile} (${value})`;
+                }}
                 labelLine={{ stroke: "gray", strokeWidth: 1, radius: "40%" }}
                 outerRadius="130"
                 fill="#8884d8"

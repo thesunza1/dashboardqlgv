@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import Box from "@mui/material/Box";
 import Collapse from "@mui/material/Collapse";
 import IconButton from "@mui/material/IconButton";
@@ -15,83 +14,34 @@ import { TbArrowsSort } from "react-icons/tb";
 import { AiOutlineDown } from "react-icons/ai";
 import { GrNext } from "react-icons/gr";
 import XLSX from "xlsx";
+import moment from "moment";
 import CallApi from "../../../API/CallAPI";
-
-function createData(name, calories, fat, carbs, protein, price) {
-  return {
-    name,
-    calories,
-    fat,
-    carbs,
-    protein,
-    price,
-    workSmall: [
-      {
-        id: 1,
-        title: "Lập trình 2 chức năng",
-        actor: "Nguyen Van A",
-        time: "11",
-        deadline: "15/06/2023",
-        completionTime: "14/06/2023",
-        status: "Chưa hoàn thành",
-        progress: "90%",
-      },
-      {
-        id: 6,
-        title: "Lập trình 1 chức năng",
-        actor: "Nguyen Van A",
-        time: "2",
-        deadline: "15/05/2023",
-        completionTime: "24/05/2023",
-        status: "Quá hạn",
-        progress: "10%",
-      },
-      {
-        id: 3,
-        title: "Lập trình 1 chức năng",
-        actor: "Nguyen Van A",
-        time: "2",
-        deadline: "15/05/2023",
-        completionTime: "24/05/2023",
-        status: "Quá hạn",
-        progress: "10%",
-      },
-    ],
-  };
-}
-
-const rows = [
-  createData(
-    "Lập trình 4 chức năng",
-    "2",
-    "15/06/2023",
-    "14/06/2023",
-    "Chưa hoàn thành",
-    "90%"
-  ),
-  createData(
-    "Triển khai",
-    "2",
-    "15/05/2023",
-    "24/05/2023",
-    "Chưa hoàn thành",
-    "10%"
-  ),
-  createData("Hổ trợ", "2", "15/05/2023", "14/05/2023", "Quá hạn", "82%"),
-  createData("Viết báo cáo", "2", "15/06/2023", "24/05/2023", "Quá hạn", "93%"),
-  createData("Lập kế hoạch", "2", "15/05/2023", "04/05/2023", "Quá hạn", "87%"),
-];
 
 function Row(props) {
   const { row } = props;
   const [open, setOpen] = useState(false);
+  const [hover, setHover] = useState(false);
+
+  const onMouseEnter = () => {
+    setHover(true);
+  };
+
+  const onMouseLeave = () => {
+    setHover(false);
+  };
 
   return (
     <>
       <TableRow
         sx={{ "& > *": { borderBottom: "unset" } }}
-        // className={props.index % 2 === 0 ? "bg-blue-200" : ""}
-        className="text-lg h-12"
+        className={props.index % 2 === 0 ? "bg-blue-50" : ""}
+        style={{
+          height: "50px",
+          fontSize: "1.25rem",
+          backgroundColor: hover ? "#d3d3d3" : "",
+        }}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
       >
         <th className="text-left font-medium">
           {/* icon sổ ra cv con */}
@@ -102,120 +52,126 @@ function Row(props) {
           >
             {open ? <AiOutlineDown /> : <GrNext />}
           </IconButton>
-          {/* tên cv */}
-          {row.name}
+          {row.dv_ten}
         </th>
-        <th className="text-center font-normal">{row.calories}</th>
-        <th className="text-center font-normal">{row.fat}</th>
-        <th className="text-center font-normal">{row.carbs}</th>
-        <th className="text-center font-normal">
-          {row.protein}
-          {/* {row.protein === "Chưa hoàn thành" ? (
-                    <span className="text-gray-700">{row.protein}</span>
-                ) : (
-                    <span className="text-red-500">{row.protein}</span>
-                )} */}
-        </th>
-        <th className="text-center font-medium">{row.price}</th>
+        {/* <th className="text-left font-normal">{row.tentruongphong}</th> */}
+        <th className="text-center font-medium">{row.tongcv}</th>
+        <th className="text-center font-normal">{row.sapdenhan}</th>
+        <th className="text-center font-normal">{row.hethan}</th>
+        <th className="text-center font-normal">{row.tile}%</th>
       </TableRow>
+
+      {/* Công việc của từng đơn vị */}
       <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+        <TableCell style={{ paddingBottom: 5, paddingTop: 5 }} colSpan={6}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
               <Table size="small" aria-label="purchases">
+                {/* Head của công việc con */}
                 <TableHead className="bg-[#6a994e] text-white">
-                  <TableRow className="border-x border-black">
-                    <TableCell className="text-left">
-                      <p className="text-xl ml-2">Công việc con</p>
-                    </TableCell>
-                    <TableCell className="w-[13vw]">
+                  <tr>
+                    <th className="text-left">
+                      <p className="text-lg ml-2">Công việc đã giao</p>
+                    </th>
+                    <th className="w-[14vw]">
+                      <div className="flex text-lg ">Người đảm nhận</div>
+                    </th>
+                    <th className="w-[10vw]">
                       <div className="flex text-lg justify-center items-center">
-                        <div>
-                          <p>Người</p>
-                          <p>đảm nhận</p>
-                        </div>
-                        <button className="ml-1 text-xl bg-blue-300">
-                          <TbArrowsSort />
-                        </button>
-                      </div>
-                    </TableCell>
-                    <TableCell className="w-[13vw]">
-                      <div className="flex text-lg justify-center items-center">
-                        <div>
+                        <button>
                           <p>Thời gian </p>
-                          <p>thực hiện</p>
-                        </div>
+                          <p>thực hiện </p>
+                        </button>
                         <button className="ml-1 text-xl bg-blue-300">
                           <TbArrowsSort />
                         </button>
                       </div>
-                    </TableCell>
-                    <TableCell className="w-[13vw] text-center">
+                    </th>
+                    <th className="w-[12vw] text-center">
                       <div className="flex text-lg justify-center items-center">
-                        <div>
+                        <button>
                           <p>Thời hạn</p>
                           <p>công việc</p>
-                        </div>
+                        </button>
                         <button className="ml-1 text-xl bg-blue-300">
                           <TbArrowsSort />
                         </button>
                       </div>
-                    </TableCell>
-                    <TableCell className="w-[13vw] text-center">
+                    </th>
+                    <th className="w-[12vw] text-center">
                       <div className="flex text-lg justify-center items-center">
-                        <div>
+                        <button>
                           <p>Thời gian</p>
                           <p>hoàn thành</p>
-                        </div>
+                        </button>
                         <button className="ml-1 text-xl bg-blue-300">
                           <TbArrowsSort />
                         </button>
                       </div>
-                    </TableCell>
-                    <TableCell className="w-[13vw] text-center">
+                    </th>
+                    <th className="w-[10vw] text-center">
                       <div className="flex text-lg justify-center items-center">
-                        <div>
+                        <button>
                           <p>Trạng thái</p>
                           <p>công việc</p>
-                        </div>
+                        </button>
                         <button className="ml-1 text-xl bg-blue-300">
                           <TbArrowsSort />
                         </button>
                       </div>
-                    </TableCell>
-                    <TableCell className="w-[13vw]">
+                    </th>
+                    <th className="w-[10vw]">
                       <div className="flex text-lg justify-center items-center text-center">
-                        <div>
+                        <button>
                           <p>Tỷ lệ</p>
                           <p>hoàn thành</p>
-                        </div>
+                        </button>
                         <button className="ml-1 text-xl bg-blue-300">
                           <TbArrowsSort />
                         </button>
                       </div>
-                    </TableCell>
-                  </TableRow>
+                    </th>
+                  </tr>
                 </TableHead>
                 <TableBody>
-                  {row.workSmall.map((workSmallRow) => (
-                    <TableRow key={workSmallRow.id} className="border-x h-10">
-                      <TableCell component="th" scope="row">
-                        {workSmallRow.title}
-                      </TableCell>
-                      <TableCell align="center">{workSmallRow.actor}</TableCell>
-                      <TableCell align="center">{workSmallRow.time}</TableCell>
-                      <TableCell align="center">
-                        {workSmallRow.deadline}
-                      </TableCell>
-                      <TableCell align="center">
-                        {workSmallRow.completionTime}
-                      </TableCell>
-                      <TableCell align="center">
-                        {workSmallRow.status}
-                      </TableCell>
-                      <TableCell align="center">
-                        {workSmallRow.progress}
-                      </TableCell>
+                  {row.CvCon.map((CvConRow) => (
+                    <TableRow
+                      key={CvConRow.cv_id}
+                      className="border-x border-b h-10"
+                    >
+                      <td className="text-left text-lg pl-3">
+                        {CvConRow.cv_ten}
+                      </td>
+
+                      <td className="text-left text-lg">{CvConRow.nv_ten}</td>
+
+                      <td className="text-center text-lg">
+                        {CvConRow.cv_tgthuchien}
+                      </td>
+
+                      <td className="text-center text-lg">
+                        {CvConRow.cv_hanhoanthanh
+                          ? moment(CvConRow.cv_hanhoanthanh).format(
+                              "DD/MM/YYYY"
+                            )
+                          : ""}
+                      </td>
+
+                      <td className="text-center text-lg">
+                        {CvConRow.cv_thgianhoanthanh
+                          ? moment(CvConRow.cv_thgianhoanthanh).format(
+                              "DD/MM/YYYY"
+                            )
+                          : ""}
+                      </td>
+
+                      <td className="text-center text-lg">
+                        {CvConRow.cv_trangthai}
+                      </td>
+
+                      <td className="text-center text-lg">
+                        {CvConRow.cv_tiendo}%
+                      </td>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -229,6 +185,22 @@ function Row(props) {
 }
 
 export default function CollapsibleTable() {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    async function dataTable() {
+      try {
+        let res = await CallApi("ldbang", "GET");
+        console.log("Bảng", res.data);
+        setData(res.data);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    dataTable();
+  }, []);
+
   function exportToExcel() {
     const table = document.getElementsByTagName("table")[0]; // lấy table HTML đầu tiên trong document
     const worksheet = XLSX.utils.table_to_sheet(table);
@@ -241,78 +213,74 @@ export default function CollapsibleTable() {
 
   return (
     <div className="w-full">
-      <div className="m-auto p-5">
+      <div className="m-auto px-5 py-3">
         <TableContainer component={Paper}>
-          <div className="flex  bg-[#1982c4] w-full h-16 items-center justify-between px-20">
-            <p className="ml-5 text-white text-4xl font-bold">
+          {/* Phần Excel */}
+          <div className="flex  bg-[#1982c4] w-full h-12 items-center justify-between px-20">
+            <p className="ml-5 text-white text-3xl font-bold">
               Danh sách các công việc
             </p>
             <button
               onClick={exportToExcel}
-              className="flex mr-5 bg-[#6a994e] p-2 rounded-lg items-center"
+              className="flex mr-5 bg-[#6a994e] hover:bg-green-500 p-1 rounded-lg items-center"
             >
-              <p className="text-xl text-white font-bold">Xuất Excel</p>
-              <div className="ml-2 text-white text-2xl">
+              <p className="text-lg text-white font-bold">Xuất Excel</p>
+              <div className="ml-2 text-white text-xl">
                 <BiDownload />
               </div>
             </button>
           </div>
           <Table aria-label="collapsible table">
             <TableHead>
-              <tr className="border-x border-black">
+              <tr>
                 <th className="text-left">
-                  <p className="text-2xl ml-2">Công việc được giao</p>
+                  <p className="text-xl ml-2">Tên công việc</p>
                 </th>
-                <th className="w-[15vw]">
+                {/* <th className="w-[15vw]">
+                  <div className="flex items-center">
+                    <div className="text-lg">Trưởng đơn vị</div>
+                  </div>
+                </th> */}
+                <th className="w-[13vw]">
                   <div className="flex justify-center items-center">
-                    <div className="text-lg">
-                      <p>Thời gian </p>
-                      <p>thực hiện</p>
-                    </div>
+                    <button className="text-lg">
+                      <p>Tổng CV </p>
+                      <p>đã giao</p>
+                    </button>
                     <button className="ml-1 text-xl bg-blue-300">
                       <TbArrowsSort />
                     </button>
                   </div>
                 </th>
-                <th className="w-[15vw] text-center">
+                <th className="w-[13vw] text-center">
                   <div className="flex justify-center items-center">
-                    <div className="text-lg">
-                      <p>Thời hạn</p>
-                      <p>công việc</p>
-                    </div>
+                    <button className="text-lg">
+                      <p>Công việc</p>
+                      <p>sắp tới hạn</p>
+                    </button>
                     <button className="ml-1 text-xl bg-blue-300">
                       <TbArrowsSort />
                     </button>
                   </div>
                 </th>
-                <th className="w-[15vw] text-center">
+
+                <th className="w-[13vw] text-center">
                   <div className="flex justify-center items-center">
-                    <div className="text-lg">
-                      <p>Thời gian</p>
-                      <p>hoàn thành</p>
-                    </div>
+                    <button className="text-lg">
+                      <p>Công việc</p>
+                      <p>quá hạn</p>
+                    </button>
                     <button className="ml-1 text-xl bg-blue-300">
                       <TbArrowsSort />
                     </button>
                   </div>
                 </th>
-                <th className="w-[15vw] text-center">
+                <th className="w-[13vw] text-center">
                   <div className="flex justify-center items-center">
-                    <div className="text-lg">
-                      <p>Trạng thái</p>
-                      <p>công việc</p>
-                    </div>
-                    <button className="ml-1 text-xl bg-blue-300">
-                      <TbArrowsSort />
-                    </button>
-                  </div>
-                </th>
-                <th className="w-[15vw] text-center">
-                  <div className="flex justify-center items-center">
-                    <div className="text-lg">
+                    <button className="text-lg">
                       <p>Tỷ lệ</p>
                       <p>hoàn thành</p>
-                    </div>
+                    </button>
                     <button className="ml-1 text-xl bg-blue-300">
                       <TbArrowsSort />
                     </button>
@@ -320,12 +288,12 @@ export default function CollapsibleTable() {
                 </th>
               </tr>
               <tr>
-                <th colSpan={7} className="bg-blue-500 h-2"></th>
+                <th colSpan={6} className="bg-blue-500 h-2"></th>
               </tr>
             </TableHead>
             <TableBody>
-              {rows.map((row, index) => (
-                <Row key={row.id} row={row} index={index} />
+              {data.map((row, index) => (
+                <Row key={row.dv_id} row={row} index={index} />
               ))}
             </TableBody>
           </Table>

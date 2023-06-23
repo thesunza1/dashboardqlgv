@@ -1,41 +1,41 @@
 import React from "react";
-import { Link } from "react-router-dom"
-import Header from "./Components/Header";
+import { Link } from "react-router-dom";
+import Header from "../Component/Header";
 import Table from "./Components/Table";
-import Pie_Chart_Sum from "./Components/Pie_Chart_Sum";
-import Pie_Chart from "./Components/Pie_Chart";
-import Bar_Chart_Time from "./Components/Bar_Chart_Time";
-import Bar_Chart_Type from "./Components/Bar_Chart_Type";
+import Pie_Left from "./Components/Pie_Left";
+import Pie_Right from "./Components/Pie_Right";
+import Bar_Left from "./Components/Bar_Left";
+import Bar_Right from "./Components/Bar_Right";
 
 function Home() {
-    return(
+  return (
+    <div className="bg-[#eff0f5]">
+      <div>
+        <Header />
+      </div>
+      <div>
         <div>
-            <div>
-                <Header/>
-            </div>
-            <div >
-                <div>
-                    <Table/>
-                </div>
-                <div className="flex justify-center">
-                    <div>
-                        <Pie_Chart_Sum/>
-                    </div>
-                    <div>
-                        <Pie_Chart/>
-                    </div>
-                </div>
-                <div className="flex justify-center">
-                    <div>
-                        <Bar_Chart_Time/>
-                    </div>
-                    <div>
-                        <Bar_Chart_Type/>
-                    </div>
-                </div>
-            </div>
+          <Table />
         </div>
-    );
+        <div className="flex justify-center px-[5]">
+          <div>
+            <Pie_Left />
+          </div>
+          <div>
+            <Pie_Right />
+          </div>
+        </div>
+        <div className="flex justify-center">
+          <div>
+            <Bar_Left />
+          </div>
+          <div>
+            <Bar_Right />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default Home;

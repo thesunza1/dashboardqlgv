@@ -8,10 +8,11 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
+  Tooltip,
   Cell,
 } from "recharts";
 
-function Bar_Chart_Time() {
+function Bar_Left() {
   const [data, setData] = useState([]);
 
   useEffect(() => {
@@ -35,38 +36,46 @@ function Bar_Chart_Time() {
   const barSize = data.length <= 10 ? 50 : data.length <= 30 ? 30 : 15;
 
   return (
-    <div className="w-[45vw] ml-[2vw]">
+    <div className="w-[47vw]">
       <br />
-      <div className="shadow-2xl rounded-md bg-white">
+      <div className="shadow-xl rounded-md bg-white">
         <p className="text-center text-xl font-bold py-3">
-          Thời gian thực hiện mỗi công việc trong tháng{" "}
-          {data.find((thang) => thang.thang === "thang")?.thang}
+          Thời gian thực hiện công việc trong tháng{" "}
+          {data.find((thang) => thang.name === "thang")?.month} là :{" "}
+          {data.find((thang) => thang.name === "TongGioLam")?.value} giờ
         </p>
-        <div className="w-full h-[520px] mb-10 flex justify-center items-center">
+        <div className="w-full h-[540px] mb-10 flex justify-center">
           {data.length !== 0 && (
             <ComposedChart
               width={600}
-              height={500}
+              height={540}
               data={data.filter((month) => {
-                return month.cv_ten !== "thang";
+                return month.name !== "TongGioLam" && month.name !== "thang";
               })}
             >
               <CartesianGrid stroke="#f5f5f5" />
               <XAxis
                 dataKey="cv_ten"
                 interval={0}
-                angle={70}
+                angle={60}
                 tickMargin={100}
                 height={200}
+                padding={{ right: 30 }}
+                dx={-20} // Điều chỉnh vị trí của tick
+                dy={-90} // Điều chỉnh vị trí của label
+                textAnchor="start" // Căn lề của label theo hướng end (bên phải)
               />
               <YAxis padding={{ top: 20 }} />
               <Bar dataKey="so_gio_lam" barSize={barSize}>
                 {data.map((entry, index) => {
-                  const fillColor = index % 2 === 0 ? "#3e92cc" : "#91cc75"; // thay đổi màu fill tương ứng
+                  const fillColor = "#3e92cc"; // thay đổi màu fill tương ứng
                   return <Cell key={`cell-${index}`} fill={fillColor} />;
                 })}
                 <LabelList dataKey="so_gio_lam" position="top" fill="blue" />
               </Bar>
+              <Tooltip
+                formatter={(value, name) => [value + " giờ làm", name]}
+              />
             </ComposedChart>
           )}
         </div>
@@ -75,4 +84,4 @@ function Bar_Chart_Time() {
   );
 }
 
-export default Bar_Chart_Time;
+export default Bar_Left;
