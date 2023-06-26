@@ -26,46 +26,46 @@ class NhanVienController extends Controller
     {
         $id = 1;
         $thang = $request->input('thang');
-        
+
 
         if ($id && $thang) {
-            $thang=ltrim($thang,'0');
-            
-            
+            $thang = ltrim($thang, '0');
+
+
             //công việc và giờ làm được giao trong tháng 
 
             $CongViecVaGio = BaoCaoHangNgay::SoGioLamTheoLcvId($id, $thang);
-            $thangh=["name"=>"thang","month"=>$thang];
-            $CongViecVaGio[]=$thangh;
+            $thangh = ["name" => "thang", "month" => $thang];
+            $CongViecVaGio[] = $thangh;
             return response()->json(
-                $CongViecVaGio         
-                );
+                $CongViecVaGio
+            );
         }
 
 
-        
+
         if ($id) {
             $thang = date('m');
-            $thang=ltrim($thang,'0');
-            
- //công việc và giờ làm được giao trong tháng 5
+            $thang = ltrim($thang, '0');
 
- $CongViecVaGio = BaoCaoHangNgay::SoGioLamTheoLcvId($id, $thang);
- $thangh=["name"=>"thang","month"=>$thang];
-$CongViecVaGio[]=$thangh;
- return response()->json(
-     $CongViecVaGio         
-     );
-}
+            //công việc và giờ làm được giao trong tháng 5
 
-           
+            $CongViecVaGio = BaoCaoHangNgay::SoGioLamTheoLcvId($id, $thang);
+            $thangh = ["name" => "thang", "month" => $thang];
+            $CongViecVaGio[] = $thangh;
+            return response()->json(
+                $CongViecVaGio
+            );
+        }
 
-            
-            
-            
-        
+
+
+
+
+
+
         if ($id == null) {
-            
+
             return redirect('/api/');
         }
     }

@@ -21,4 +21,5 @@ class ThangMiddleware
         $request->merge(['thang' => $thang]);
 
         return $next($request);
-    }}
+    }
+}

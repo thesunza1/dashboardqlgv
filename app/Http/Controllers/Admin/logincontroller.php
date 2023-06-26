@@ -13,45 +13,35 @@ use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
+
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\RedirectResponse;
 use  Illuminate\Validation\Validator;
 use App\Models\User;
 use JWTAuth;
-use JWTAuthException;
+use Exception;
 
 
 class LoginController extends Controller
 
 {
-    public function getlogin(){
+    public function getlogin()
+    {
         return view('backend.dangnhap');
-
     }
 
     public function postLogin(Request $request)
-{
-    $credentials = $request->only('nv_taikhoan', 'nv_matkhau');
+    {
+        $credentials = $request->only('nv_taikhoan', 'nv_matkhau');
+        // Lấy mật khẩu đã được mã hóa từ cơ sở dữ liệu
+        $storedHashedPassword = getHashedPasswordFromDatabase($credentials['nv_taikhoan']);
 
-    try {
-        if (!$token = JWTAuth::attempt($credentials)) {
-            return response()->json(['error' => 'Tên đăng nhập hoặc mật khẩu không đúng'], 401);
+        if ($storedHashedPassword && Hash::check($credentials['nv_matkhau'], $storedHashedPassword)) {
+            // Đăng nhập thành công
+            return redirect('/dashboard');
+        } else {
+            // Đăng nhập không thành công
+            return back()->withErrors(['message' => 'Tài khoản hoặc mật khẩu không đúng']);
         }
-    } catch (JWTException $e) {
-        return response()->json(['error' => 'Không thể tạo token'], 500);
     }
-
-    $user = JWTAuth::user();
-    $responseData = [
-        'status' => 'success',
-        'token' => $token,
-        'user' => $user
-    ];
-    return response()->json($responseData);
 }
-
-
-}
-    
-    
-
