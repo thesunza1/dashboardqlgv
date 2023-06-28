@@ -33,6 +33,7 @@ function Bar_Manager() {
 
     fetchData();
   }, []);
+
   const barSize = chart.length <= 10 ? 50 : chart.length <= 30 ? 30 : 15;
   // const dataMax = Math.max(...chart.map(entry => entry.value)); // tìm giá trị lớn nhất trong mảng dữ liệu
   // const domainMax = dataMax + 15; // tăng giá trị lớn nhất thêm 5

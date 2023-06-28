@@ -21,9 +21,9 @@ function Bar_Right() {
         let res = await CallApi("cotloai", "GET"); // gọi API để lấy dữ liệu
         console.log("Cột phải", res.data);
         setData(
-          res.data.map((enk) => {
-            enk.value = +enk.value;
-            return enk;
+          res.data.map((number) => {
+            number.so_gio_lam = +number.so_gio_lam;
+            return number;
           })
         );
       } catch (error) {
@@ -43,7 +43,7 @@ function Bar_Right() {
           Thời gian thực hiện các loại công việc trong tháng{" "}
           {data.find((thang) => thang.name === "thang")?.month}
         </p>
-        <div className="w-full h-[540px] mb-10 flex justify-center">
+        <div className="w-full h-[540px] mb-4 flex justify-center">
           {data.length !== 0 && (
             <ComposedChart
               width={600}

@@ -59,7 +59,12 @@ function Pie_Manager() {
                   }
                   return `${name}: ${tile} (${value})`;
                 }}
-                labelLine={{ stroke: "gray", strokeWidth: 1, radius: "40%" }}
+                // labelLine={({ value }) => {
+                //   if (value === 0) {
+                //     return null;
+                //   }
+                //   return { stroke: "gray", strokeWidth: 1, radius: "40%" };
+                // }}
                 outerRadius="130"
                 fill="#8884d8"
               >
@@ -70,7 +75,6 @@ function Pie_Manager() {
                   />
                 ))}
               </Pie>
-              {/* <Legend /> */}
             </PieChart>
           )}
         </div>

@@ -1,195 +1,150 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import PropTypes from "prop-types";
 import Box from "@mui/material/Box";
-import Collapse from "@mui/material/Collapse";
-import IconButton from "@mui/material/IconButton";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
+import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
+import TableSortLabel from "@mui/material/TableSortLabel";
 import Paper from "@mui/material/Paper";
+import Collapse from "@mui/material/Collapse";
+import IconButton from "@mui/material/IconButton";
 import { BiDownload } from "react-icons/bi";
+import { BsArrowUp, BsArrowDown } from "react-icons/bs";
 import { TbArrowsSort } from "react-icons/tb";
 import { AiOutlineDown } from "react-icons/ai";
-import { GrNext } from "react-icons/gr";
+import { GrNext, GrPrevious } from "react-icons/gr";
 import XLSX from "xlsx";
 import moment from "moment";
+import { visuallyHidden } from "@mui/utils";
 import CallApi from "../../API/CallAPI";
 
-function Row(props) {
-  const { row } = props;
-  const [open, setOpen] = useState(false);
-  const [hover, setHover] = useState(false);
+function descendingComparator(a, b, orderBy) {
+  if (b[orderBy] < a[orderBy]) {
+    return -1;
+  }
+  if (b[orderBy] > a[orderBy]) {
+    return 1;
+  }
+  return 0;
+}
 
-  const onMouseEnter = () => {
-    setHover(true);
-  };
+function getComparator(order, orderBy) {
+  return order === "desc"
+    ? (a, b) => descendingComparator(a, b, orderBy)
+    : (a, b) => -descendingComparator(a, b, orderBy);
+}
 
-  const onMouseLeave = () => {
-    setHover(false);
+function stableSort(array, comparator) {
+  const stabilizedThis = array.map((el, index) => [el, index]);
+  stabilizedThis.sort((a, b) => {
+    const order = comparator(a[0], b[0]);
+    if (order !== 0) {
+      return order;
+    }
+    return a[1] - b[1];
+  });
+  return stabilizedThis.map((el) => el[0]);
+}
+
+const headCells = [
+  {
+    id: "dv_ten",
+    numeric: false,
+    disablePadding: true,
+    label: "Tên đơn vị",
+  },
+  {
+    id: "tentruongphong",
+    numeric: true,
+    disablePadding: false,
+    label: "Trưởng đơn vị",
+  },
+  {
+    id: "tongcv",
+    numeric: true,
+    disablePadding: false,
+    label: "Tổng CV đã giao",
+  },
+  {
+    id: "sapdenhan",
+    numeric: true,
+    disablePadding: false,
+    label: "Công việc sắp tới hạn",
+  },
+  {
+    id: "hethan",
+    numeric: true,
+    disablePadding: false,
+    label: "Công việc quá hạn",
+  },
+  {
+    id: "tile",
+    numeric: true,
+    disablePadding: false,
+    label: "Tỷ lệ hoàn thành",
+  },
+];
+
+function EnhancedTableHead(props) {
+  const { order, orderBy, onRequestSort } = props;
+  const createSortHandler = (property) => (event) => {
+    onRequestSort(event, property);
   };
 
   return (
-    <>
-      <TableRow
-        sx={{ "& > *": { borderBottom: "unset" } }}
-        className={props.index % 2 === 0 ? "bg-blue-50" : ""}
-        style={{
-          height: "50px",
-          fontSize: "1.25rem",
-          backgroundColor: hover ? "#d3d3d3" : "",
-        }}
-        onMouseEnter={onMouseEnter}
-        onMouseLeave={onMouseLeave}
-      >
-        <th className="text-left font-medium">
-          {/* icon sổ ra cv con */}
-          <IconButton
-            aria-label="expand row"
-            size="small"
-            onClick={() => setOpen(!open)}
-          >
-            {open ? <AiOutlineDown /> : <GrNext />}
-          </IconButton>
-          {row.cv_trangthai}
-        </th>
-        <th className="text-left font-normal">{row.cv_trangthai}</th>
-        <th className="text-center font-medium">{row.cv_trangthai}</th>
-        <th className="text-center font-normal">{row.cv_trangthai}</th>
-        <th className="text-center font-normal">{row.cv_trangthai}</th>
-        <th className="text-center font-normal">{row.cv_trangthai}%</th>
-      </TableRow>
-
-      {/* Công việc của từng đơn vị */}
+    <TableHead>
       <TableRow>
-        <TableCell style={{ paddingBottom: 5, paddingTop: 5 }} colSpan={6}>
-          <Collapse in={open} timeout="auto" unmountOnExit>
-            <Box sx={{ margin: 1 }}>
-              <Table size="small" aria-label="purchases">
-                {/* Head của công việc con */}
-                <TableHead className="bg-[#6a994e] text-white">
-                  <tr>
-                    <th className="text-left">
-                      <p className="text-lg ml-2">Công việc đã giao</p>
-                    </th>
-                    <th className="w-[14vw]">
-                      <div className="flex text-lg ">Người đảm nhận</div>
-                    </th>
-                    <th className="w-[10vw]">
-                      <div className="flex text-lg justify-center items-center">
-                        <button>
-                          <p>Thời gian </p>
-                          <p>thực hiện </p>
-                        </button>
-                        <button className="ml-1 text-xl bg-blue-300">
-                          <TbArrowsSort />
-                        </button>
-                      </div>
-                    </th>
-                    <th className="w-[12vw] text-center">
-                      <div className="flex text-lg justify-center items-center">
-                        <button>
-                          <p>Thời hạn</p>
-                          <p>công việc</p>
-                        </button>
-                        <button className="ml-1 text-xl bg-blue-300">
-                          <TbArrowsSort />
-                        </button>
-                      </div>
-                    </th>
-                    <th className="w-[12vw] text-center">
-                      <div className="flex text-lg justify-center items-center">
-                        <button>
-                          <p>Thời gian</p>
-                          <p>hoàn thành</p>
-                        </button>
-                        <button className="ml-1 text-xl bg-blue-300">
-                          <TbArrowsSort />
-                        </button>
-                      </div>
-                    </th>
-                    <th className="w-[10vw] text-center">
-                      <div className="flex text-lg justify-center items-center">
-                        <button>
-                          <p>Trạng thái</p>
-                          <p>công việc</p>
-                        </button>
-                        <button className="ml-1 text-xl bg-blue-300">
-                          <TbArrowsSort />
-                        </button>
-                      </div>
-                    </th>
-                    <th className="w-[10vw]">
-                      <div className="flex text-lg justify-center items-center text-center">
-                        <button>
-                          <p>Tỷ lệ</p>
-                          <p>hoàn thành</p>
-                        </button>
-                        <button className="ml-1 text-xl bg-blue-300">
-                          <TbArrowsSort />
-                        </button>
-                      </div>
-                    </th>
-                  </tr>
-                </TableHead>
-                <TableBody>
-                  {row &&
-                    row.CvCon.map((CvConRow) => (
-                      <TableRow
-                        key={CvConRow.cv_trangthai}
-                        className="border-x border-b h-10"
-                      >
-                        <td className="text-left text-lg pl-3">
-                          {CvConRow.cv_trangthai}
-                        </td>
-
-                        <td className="text-left text-lg">
-                          {CvConRow.cv_trangthai}
-                        </td>
-
-                        <td className="text-center text-lg">
-                          {CvConRow.cv_trangthai}
-                        </td>
-
-                        <td className="text-center text-lg">
-                          {CvConRow.cv_trangthai
-                            ? moment(CvConRow.cv_trangthai).format("DD/MM/YYYY")
-                            : ""}
-                        </td>
-
-                        <td className="text-center text-lg">
-                          {CvConRow.cv_trangthai
-                            ? moment(CvConRow.cv_trangthai).format("DD/MM/YYYY")
-                            : ""}
-                        </td>
-
-                        <td className="text-center text-lg">
-                          {CvConRow.cv_trangthai}
-                        </td>
-
-                        <td className="text-center text-lg">
-                          {CvConRow.cv_trangthai}%
-                        </td>
-                      </TableRow>
-                    ))}
-                </TableBody>
-              </Table>
-            </Box>
-          </Collapse>
-        </TableCell>
+        {headCells.map((headCell) => (
+          <TableCell
+            key={headCell.id}
+            align={headCell.numeric ? "right" : "left"}
+            padding={headCell.disablePadding ? "none" : "normal"}
+            sortDirection={orderBy === headCell.id ? order : false}
+          >
+            <TableSortLabel
+              active={orderBy === headCell.id}
+              direction={orderBy === headCell.id ? order : "asc"}
+              onClick={createSortHandler(headCell.id)}
+            >
+              {headCell.label}
+              {orderBy === headCell.id ? (
+                <Box component="span" sx={visuallyHidden}>
+                  {order === "desc" ? "sorted descending" : "sorted ascending"}
+                </Box>
+              ) : null}
+            </TableSortLabel>
+          </TableCell>
+        ))}
       </TableRow>
-    </>
+    </TableHead>
   );
 }
 
-export default function CollapsibleTable() {
+EnhancedTableHead.propTypes = {
+  numSelected: PropTypes.number.isRequired,
+  onRequestSort: PropTypes.func.isRequired,
+  onSelectAllClick: PropTypes.func.isRequired,
+  order: PropTypes.oneOf(["asc", "desc"]).isRequired,
+  orderBy: PropTypes.string.isRequired,
+  rowCount: PropTypes.number.isRequired,
+};
+
+export default function EnhancedTable() {
+  const [order, setOrder] = useState("asc");
+  const [orderBy, setOrderBy] = useState("calories");
+  const [selected, setSelected] = useState([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [data, setData] = useState([]);
 
   useEffect(() => {
     async function dataTable() {
       try {
-        let res = await CallApi("nvbang", "GET");
+        let res = await CallApi("ldbang", "GET");
         console.log("Bảng", res.data);
         setData(res.data);
       } catch (error) {
@@ -200,105 +155,128 @@ export default function CollapsibleTable() {
     dataTable();
   }, []);
 
-  function exportToExcel() {
-    const table = document.getElementsByTagName("table")[0]; // lấy table HTML đầu tiên trong document
-    const worksheet = XLSX.utils.table_to_sheet(table);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Danh sách công việc");
-    const date = new Date().toISOString().slice(0, 10);
-    const filename = `Danh sách công việc - ${date}.xlsx`;
-    XLSX.writeFile(workbook, filename);
-  }
+  const handleRequestSort = (event, property) => {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
+  };
+
+  const handleSelectAllClick = (event) => {
+    if (event.target.checked) {
+      const newSelected = data.map((n) => n.name);
+      setSelected(newSelected);
+      return;
+    }
+    setSelected([]);
+  };
+
+  const handleClick = (event, name) => {
+    const selectedIndex = selected.indexOf(name);
+    let newSelected = [];
+
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selected, name);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selected.slice(1));
+    } else if (selectedIndex === selected.length - 1) {
+      newSelected = newSelected.concat(selected.slice(0, -1));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selected.slice(0, selectedIndex),
+        selected.slice(selectedIndex + 1)
+      );
+    }
+
+    setSelected(newSelected);
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const isSelected = (name) => selected.indexOf(name) !== -1;
+
+  // Avoid a layout jump when reaching the last page with empty data.
+  const emptyRows =
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - data.length) : 0;
+
+  const visibleRows = useMemo(
+    () =>
+      stableSort(data, getComparator(order, orderBy)).slice(
+        page * rowsPerPage,
+        page * rowsPerPage + rowsPerPage
+      ),
+    [order, orderBy, page, rowsPerPage]
+  );
 
   return (
-    <div className="w-full">
-      <div className="m-auto px-5 py-3">
-        <TableContainer component={Paper}>
-          {/* Phần Excel */}
-          <div className="flex  bg-[#1982c4] w-full h-12 items-center justify-between px-20">
-            <p className="ml-5 text-white text-3xl font-bold">
-              Danh sách các công việc
-            </p>
-            <button
-              onClick={exportToExcel}
-              className="flex mr-5 bg-[#6a994e] hover:bg-green-500 p-1 rounded-lg items-center"
-            >
-              <p className="text-lg text-white font-bold">Xuất Excel</p>
-              <div className="ml-2 text-white text-xl">
-                <BiDownload />
-              </div>
-            </button>
-          </div>
-          <Table aria-label="collapsible table">
-            <TableHead>
-              <tr>
-                <th className="text-left">
-                  <p className="text-xl ml-2">Tên đơn vị</p>
-                </th>
-                <th className="w-[15vw]">
-                  <div className="flex items-center">
-                    <div className="text-lg">Trưởng đơn vị</div>
-                  </div>
-                </th>
-                <th className="w-[13vw]">
-                  <div className="flex justify-center items-center">
-                    <button className="text-lg">
-                      <p>Tổng CV </p>
-                      <p>đã giao</p>
-                    </button>
-                    <button className="ml-1 text-xl bg-blue-300">
-                      <TbArrowsSort />
-                    </button>
-                  </div>
-                </th>
-                <th className="w-[13vw] text-center">
-                  <div className="flex justify-center items-center">
-                    <button className="text-lg">
-                      <p>Công việc</p>
-                      <p>sắp tới hạn</p>
-                    </button>
-                    <button className="ml-1 text-xl bg-blue-300">
-                      <TbArrowsSort />
-                    </button>
-                  </div>
-                </th>
-
-                <th className="w-[13vw] text-center">
-                  <div className="flex justify-center items-center">
-                    <button className="text-lg">
-                      <p>Công việc</p>
-                      <p>quá hạn</p>
-                    </button>
-                    <button className="ml-1 text-xl bg-blue-300">
-                      <TbArrowsSort />
-                    </button>
-                  </div>
-                </th>
-                <th className="w-[13vw] text-center">
-                  <div className="flex justify-center items-center">
-                    <button className="text-lg">
-                      <p>Tỷ lệ</p>
-                      <p>hoàn thành</p>
-                    </button>
-                    <button className="ml-1 text-xl bg-blue-300">
-                      <TbArrowsSort />
-                    </button>
-                  </div>
-                </th>
-              </tr>
-              <tr>
-                <th colSpan={6} className="bg-blue-500 h-2"></th>
-              </tr>
-            </TableHead>
+    <Box sx={{ width: "100%" }}>
+      <Paper sx={{ width: "100%", mb: 2 }}>
+        <TableContainer>
+          <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle">
+            <EnhancedTableHead
+              numSelected={selected.length}
+              order={order}
+              orderBy={orderBy}
+              onSelectAllClick={handleSelectAllClick}
+              onRequestSort={handleRequestSort}
+              rowCount={data.length}
+            />
             <TableBody>
-              {data &&
-                data.map((row, index) => (
-                  <Row key={row.cv_trangthai} row={row} index={index} />
-                ))}
+              {visibleRows.map((row, index) => {
+                const isItemSelected = isSelected(row.dv_ten);
+                const labelId = `enhanced-table-checkbox-${index}`;
+
+                return (
+                  <TableRow
+                    hover
+                    onClick={(event) => handleClick(event, row.dv_ten)}
+                    aria-checked={isItemSelected}
+                    tabIndex={-1}
+                    key={row.dv_ten}
+                    selected={isItemSelected}
+                    sx={{ cursor: "pointer" }}
+                  >
+                    <TableCell
+                      component="th"
+                      id={labelId}
+                      scope="row"
+                      padding="none"
+                      width={"200px"}
+                    >
+                      {row.dv_ten}
+                    </TableCell>
+                    <TableCell align="right">{row.dv_id}</TableCell>
+                    <TableCell align="right">{row.tongcv}</TableCell>
+                    <TableCell align="right">{row.sapdenhan}</TableCell>
+                    <TableCell align="right">{row.hethan}</TableCell>
+                    <TableCell align="right">{row.tile}</TableCell>
+                  </TableRow>
+                );
+              })}
+              {emptyRows > 0 && (
+                <TableRow>
+                  <TableCell colSpan={6} />
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </TableContainer>
-      </div>
-    </div>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={data.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      </Paper>
+    </Box>
   );
 }

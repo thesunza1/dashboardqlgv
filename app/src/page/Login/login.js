@@ -30,7 +30,7 @@ function Login() {
     // TODO: xử lý logic đăng nhập, ví dụ: gửi tên người dùng và mật khẩu đến máy chủ
 
     // Điều hướng đến trang chủ
-    window.location.href = "/";
+    window.location.href = "/dashboard";
   }
 
   function handleKeyPress(event) {
