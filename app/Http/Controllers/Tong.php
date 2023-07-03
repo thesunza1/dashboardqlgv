@@ -8,35 +8,70 @@ use Illuminate\Support\Facades\Redirect;
 use App\Models\CongViec;
 use App\Models\NhanVien;
 use App\Models\DonVi;
+use Illuminate\Support\Carbon;
 
 class Tong extends Controller
 {
-
+    public function head(Request $request)
+    {
+        $id = 1;
+        //$user1=auth()->user();
+        //$id=$user1->nv_id;
+        $tt = NhanVien::ThongTinNhanVien($id);
+        $donvi = DonVi::select('dv_id', 'dv_ten', 'dv_id_dvtruong')->get();
+        $resultten = array();
+        foreach ($donvi as $value) {
+            // Khởi tạo các biến
+            $quyen = "";
+            foreach ($tt as $nv) {
+                $tenNv = $nv->nv_ten;
+                if ($nv->quyen == "nv") {
+                    if ($value->dv_id_dvtruong == $nv->nv_id) {
+                        $quyen = "Trưởng Phòng";
+                    } else $quyen = "NhanVien";
+                }
+                if ($nv->nv_quyen = "ld") {
+                    $quyen = "Lãnh Đạo";
+                }
+            }
+            $resultten[] = array(
+                'TenNv' => $tenNv,
+                'ChucVu' => $quyen
+            );
+        }
+        $resultten = array_map("unserialize", array_unique(array_map("serialize", $resultten)));
+        return $resultten;
+    }
     public function nhanvien(Request $request)
     {
         $id = 1;
         //$user1=auth()->user();
         //$id=$user1->nv_id;
 
-        $thang = $request->input('thang');
 
         $nam = date('y');
-        $cvChaThang = CongViec::CvChaThang($id, $thang)->get();
-        $cvCon = CongViec::CvCon($id, $thang)->get();
-        $th = ltrim($thang, '0');
-        $hientai = date('Y-m-t', mktime(0, 0, 0, $thang + 1, 0, $nam));
 
-        $ngay = date('Y-m-d', strtotime('+3 days', strtotime($hientai))); // Trừ đi 3 ngày
+
 
         $responseData = [];
-        $months = ['', 'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+        $months = ['', 'Thang_1', 'Thang_2', 'Thang_3', 'Thang_4', 'Thang_5', 'Thang_6', 'Thang_7', 'Thang_8', 'Thang_9', 'Thang_10', 'Thang_11', 'Thang_12'];
 
         for ($i = 1; $i <= 12; $i++) {
+
+
             $thang = $i;
+
             $cvChaThang = CongViec::CvChaThang($id, $thang)->get();
             $cvCon = CongViec::CvCon($id, $thang)->get();
+
             $th = ltrim($thang, '0');
+            $hientai = date('Y-m-t', mktime(0, 0, 0, $thang + 1, 0, $nam));
+
+            $ngay = date('Y-m-d', strtotime('+3 days', strtotime($hientai))); // Trừ đi 3 ngày
             // Duyệt mảng công việc con
+            foreach ($cvChaThang as $cvcha) {
+                $cvcha->congViecCon = collect([]);
+            }
             foreach ($cvCon as $con) {
                 // Tìm công việc cha tương ứng bằng cách so sánh cv_cv_cha và cv_id
                 $cha = $cvChaThang->where('cv_id', $con->cv_id)->first();
@@ -51,7 +86,13 @@ class Tong extends Controller
                 }
             }
 
+            $GioTheoNgay = BaoCaoHangNgay::SoGioLamNgay($id, $thang);
+            $TongGioLamNgay = BaoCaoHangNgay::TongSoGioLamNgay($id, $thang);
 
+            $Tong = ["name" => "tong_gio", "value" => "$TongGioLamNgay"];
+            $GioTheoNgay[] = $Tong;
+            $tha = ["name" => "thang", "month" => "$th"];
+            $GioTheoNgay[] = $tha;
 
 
 
@@ -62,7 +103,7 @@ class Tong extends Controller
             //thời gian thực hiện công việc của tháng hiện tại
             $TongGioLam = BaoCaoHangNgay::SoGioLam($id, $thang);
 
-            $GCv = BaoCaoHangNgay::SoGioLamTheocvId($id, $thang);
+            $GCv = CongViec::SoGioLamTheocvId($id, $thang);
 
 
 
@@ -134,8 +175,10 @@ class Tong extends Controller
                 'NvCot' => $GCv,
                 'NvTron' => $NvTron,
                 'NvCotTrai' => $CongViecVaGio,
+                'NvCOtNgayLam' => $GioTheoNgay
 
             ];
+            $months[$i] = array(["name" => $months[$i]]);
             $responseData[$months[$i]][] =  $monthData;
         }
         return response()->json($responseData);
@@ -148,13 +191,10 @@ class Tong extends Controller
         //$user1=auth()->user();
         //$id=$user1->nv_id;
 
-        $thang = $request->input('thang');
+        //$thang = $request->input('thang');
         $nam = date('y');
 
-        $th = ltrim($thang, '0');
-        $hientai = date('Y-m-t', mktime(0, 0, 0, $thang + 1, 0, $nam));
-
-        $ngay = date('Y-m-d', strtotime('+3 days', strtotime($hientai))); // Trừ đi 3 ngày
+        //$th = ltrim($thang, '0');
 
         $responseData = [];
         $months = ['', 'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
@@ -163,6 +203,9 @@ class Tong extends Controller
             $thang = $i;
 
             $th = ltrim($thang, '0');
+            $hientai = date('Y-m-t', mktime(0, 0, 0, $thang + 1, 0, $nam));
+
+            $ngay = date('Y-m-d', strtotime('+3 days', strtotime($hientai))); // Trừ đi 3 ngày
             $TongCvTHT = CongViec::CongViecHoanThanhDv($thang);
             $TongCvTCHT = CongViec::CongViecChuaHoanThanhDv($thang);
             $TongCvTDL = CongViec::CongViecDangLamDv($thang);

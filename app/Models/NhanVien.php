@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminates\Contracts\Auth\Authenticatable;
 use Illuminate\Foundation\Auth\User;
 
-class NhanVien extends Model 
+class NhanVien extends Model
 
 {
-   
-    
+
+
     protected $table = 'nhanvien';
     protected $fillable = [
         'nv_id',
@@ -43,35 +43,40 @@ class NhanVien extends Model
             ->select('donvi.dv_ten', 'baocaohangngay.so_gio_lam')
             ->whereMonth('baocaohangngay.bchn_ngay', '=', $thang)
             ->get();
-            $data = [];
+        $data = [];
 
-    foreach ($congviecvagio as $row) {
-        if (!isset($data[$row->dv_ten])) {
-            $data[$row->dv_ten] = [
-                'total_gio_lam' => 0,
-                'total_bao_cao' => 0,
-            ];
+        foreach ($congviecvagio as $row) {
+            if (!isset($data[$row->dv_ten])) {
+                $data[$row->dv_ten] = [
+                    'total_gio_lam' => 0,
+                    'total_bao_cao' => 0,
+                ];
+            }
+            $data[$row->dv_ten]['total_gio_lam'] += $row->so_gio_lam;
+            $data[$row->dv_ten]['total_bao_cao']++;
         }
-        $data[$row->dv_ten]['total_gio_lam'] += $row->so_gio_lam;
-        $data[$row->dv_ten]['total_bao_cao']++;
+
+        $tylelamviec = [];
+
+        foreach ($data as $donVi => $info) {
+            $tylelamviec[$donVi] = $info['total_gio_lam'] / $info['total_bao_cao'];
+        }
+
+        return $tylelamviec;
     }
-
-    $tylelamviec = [];
-
-    foreach ($data as $donVi => $info) {
-        $tylelamviec[$donVi] = $info['total_gio_lam'] / $info['total_bao_cao'];
-    }
-
-    return $tylelamviec;
-}
-public function scopeBangDv($query)
+    public function scopeBangDv($query)
     {
         return $query
             ->join('donvi', 'nhanvien.dv_id', '=', 'donvi.dv_id')
-            ->select('nhanvien.nv_ten', 'donvi.dv_id','donvi.dv_id_dvtruong' ,'nhanvien.nv_id')
-            ->whereColumn ('donvi.dv_id_dvtruong','=','nhanvien.nv_id')
-            
-            ;
-        
-        }
+            ->select('nhanvien.nv_ten', 'donvi.dv_id', 'donvi.dv_id_dvtruong', 'nhanvien.nv_id')
+            ->whereColumn('donvi.dv_id_dvtruong', '=', 'nhanvien.nv_id');
+    }
+    public function scopeThongTinNhanVien($query, $id)
+    {
+        return $query
+
+            ->select('nv_ten', 'nv_id', 'nv_quyen')
+            ->where('nv_id', '=', $id)
+            ->get();
+    }
 }

@@ -36,6 +36,8 @@ Route::prefix('dashboardqlcv')->middleware('thang')->group(function () {
     Route::get('/ldbang', [LdCot::class, 'cot']);
     Route::get('/nhanvien', [Tong::class, 'nhanvien']);
     Route::get('/lanhdao', [Tong::class, 'lanhdao']);
+    Route::get('/header', [Tong::class, 'head']);
+    Route::get('/cotngay', [NvCot::class, 'cotngay']);
     Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
         return $request->user();
     });

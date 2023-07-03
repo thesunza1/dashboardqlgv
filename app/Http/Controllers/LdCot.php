@@ -48,7 +48,7 @@ class LdCot extends Controller
 
                     if ($cv->dv_id == $value->dv_id) {
 
-                        if ($cv->cv_trangthai > 1) { // Đang thực hiện
+                        if ($cv->cv_trangthai < 5 && $cv->cv_trangthai > 1) { // Đang thực hiện
                             $tongcv++; // Tăng tổng công việc lên 1
                         }
                         if ($cv->cv_hanhoanthanh >= $hientai && $cv->cv_hanhoanthanh <= $ngay) { // Sắp đến hạn hoàn thành
@@ -123,13 +123,13 @@ class LdCot extends Controller
 
                     if ($cv->dv_id == $value->dv_id) {
 
-                        if ($cv->cv_trangthai > 1) { // Đang thực hiện
+                        if (1 < $cv->cv_trangthai && $cv->cv_trangthai < 5) { // Đang thực hiện
                             $tongcv++; // Tăng tổng công việc lên 1
                         }
-                        if ($cv->cv_trangthai > 1 && $cv->cv_hanhoanthanh >= $hientai && $cv->cv_hanhoanthanh <= $ngay) { // Sắp đến hạn hoàn thành
+                        if (1 < $cv->cv_trangthai && $cv->cv_trangthai < 5 && $cv->cv_hanhoanthanh >= $hientai && $cv->cv_hanhoanthanh <= $ngay) { // Sắp đến hạn hoàn thành
                             $sapdenhan++; // Tăng số lượng công việc sắp hết hạn lên 1
                         }
-                        if ($cv->cv_trangthai > 1 && $cv->cv_tiendo < 100 && $hientai > $cv->cv_hanhoanthanh) { // Hết hạn hoàn thành
+                        if (1 < $cv->cv_trangthai && $cv->cv_trangthai < 5 && $cv->cv_tiendo < 100 && $hientai > $cv->cv_hanhoanthanh) { // Hết hạn hoàn thành
                             $hethan++; // Tăng số lượng công việc đã hết hạn hoàn thành lên 1
                         }
                     }

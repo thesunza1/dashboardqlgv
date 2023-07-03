@@ -34,7 +34,7 @@ class NhanVienController extends Controller
 
             //công việc và giờ làm được giao trong tháng 
 
-            $CongViecVaGio = BaoCaoHangNgay::SoGioLamTheoLcvId($id, $thang);
+            $CongViecVaGio = CongViec::SoGioLamTheoLcvId($id, $thang);
             $thangh = ["name" => "thang", "month" => $thang];
             $CongViecVaGio[] = $thangh;
             return response()->json(

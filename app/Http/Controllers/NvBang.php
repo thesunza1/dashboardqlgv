@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\BaoCaoHangNgay;
 use Illuminate\Support\Facades\Redirect;
 use App\Models\CongViec;
+use App\Models\NhanVien;
+use App\Models\DonVi;
 
 class NvBang extends Controller
 {
@@ -13,6 +15,10 @@ class NvBang extends Controller
     {
         //
         $id = 1;
+        $tt = NhanVien::ThongTinNhanVien($id);
+        $donvi = DonVi::select('dv_id', 'dv_ten')->get();
+
+        //return $tt;
         //$user1=auth()->user();
         //$id=$user1->nv_id;
 

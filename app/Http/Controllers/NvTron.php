@@ -42,10 +42,22 @@ class NvTron extends Controller
 
                         $TotalHT = $TongCvHoanThanh + $TongCvHoanThanhQuaHan;
                         $TotalCHT = $TongCvChuaHoanThanh + $TongCvChuaHoanThanhQH;
-                        $TLHT = round((($TongCvHoanThanh / $TotalHT) * 100), 0);
-                        $TLHTQH = round((($TongCvHoanThanhQuaHan / $TotalHT) * 100), 0);
-                        $TLCHT = round((($TongCvChuaHoanThanh / $TotalCHT) * 100), 0);
-                        $TLCHTQH = round((($TongCvChuaHoanThanhQH / $TotalCHT) * 100), 0);
+                        if ($TotalHT != 0) {
+                                $TLHT = round((($TongCvHoanThanh / $TotalHT) * 100), 0);
+                                $TLHTQH = round((($TongCvHoanThanhQuaHan / $TotalHT) * 100), 0);
+                        }
+                        if ($TotalHT == 0) {
+                                $TLHT = 0;
+                                $TLHTQH = 0;
+                        }
+                        if ($TotalCHT != 0) {
+                                $TLCHT = round((($TongCvChuaHoanThanh / $TotalCHT) * 100), 0);
+                                $TLCHTQH = round((($TongCvChuaHoanThanhQH / $TotalCHT) * 100), 0);
+                        }
+                        if ($TotalCHT == 0) {
+                                $TLCHT = 0;
+                                $TLCHTQH = 0;
+                        }
 
 
 

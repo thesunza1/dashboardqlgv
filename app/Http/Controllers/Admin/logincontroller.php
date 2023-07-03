@@ -33,15 +33,24 @@ class LoginController extends Controller
     public function postLogin(Request $request)
     {
         $credentials = $request->only('nv_taikhoan', 'nv_matkhau');
-        // Lấy mật khẩu đã được mã hóa từ cơ sở dữ liệu
-        $storedHashedPassword = getHashedPasswordFromDatabase($credentials['nv_taikhoan']);
+        $token = null;
 
-        if ($storedHashedPassword && Hash::check($credentials['nv_matkhau'], $storedHashedPassword)) {
-            // Đăng nhập thành công
-            return redirect('/dashboard');
-        } else {
-            // Đăng nhập không thành công
-            return back()->withErrors(['message' => 'Tài khoản hoặc mật khẩu không đúng']);
+        try {
+            $user = NhanVien::where('nv_taikhoan', $credentials['nv_taikhoan'])->first();
+
+            if (!$user) {
+                return response()->json(['invalid_email_or_password'], 422);
+            }
+
+            if (!Hash::check($credentials['nv_matkhau'], $user->nv_matkhau)) {
+                return response()->json(['invalid_email_or_password'], 422);
+            }
+
+            $token = JWTAuth::fromUser($user);
+        } catch (JWTException $e) {
+            return response()->json(['failed_to_create_token'], 500);
         }
+
+        return response()->json(['message' => 'Login successful', 'token' => $token]);
     }
 }
