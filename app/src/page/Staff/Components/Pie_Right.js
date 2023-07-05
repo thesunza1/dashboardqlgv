@@ -6,7 +6,7 @@ function Pie_Right() {
   const [data, setData] = useState([]);
 
   //pie-chart
-  var COLORS = ["#fac858", "#ee6766"];
+  var COLORS = ["#90cb74", "#ee6766"];
 
   useEffect(() => {
     async function fetchData() {
@@ -39,7 +39,7 @@ function Pie_Right() {
       <div className="w-[47vw] shadow-xl rounded-md bg-white">
         <p className="text-center text-xl font-bold py-3">
           Tỉ lệ công viêc chưa hoàn thành trong tháng{" "}
-          {data.find((thang) => thang.name === "thang")?.month}
+          {/* {data.find((thang) => thang.name === "thang")?.month} */}
         </p>
         <div className="flex justify-center items-center">
           {data.length !== 0 && (

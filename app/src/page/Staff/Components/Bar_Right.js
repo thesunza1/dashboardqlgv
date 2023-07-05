@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import CallApi from "../../../API/CallAPI";
+import ExampleContext from "../../Component/FilterMonth";
 
 import {
   ComposedChart,
@@ -8,47 +9,57 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
   Cell,
 } from "recharts";
 
 function Bar_Right() {
-  const [data, setData] = useState([]);
+  // const [data, setData] = useState([]);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        let res = await CallApi("cotloai", "GET"); // gọi API để lấy dữ liệu
-        console.log("Cột phải", res.data);
-        setData(
-          res.data.map((number) => {
-            number.so_gio_lam = +number.so_gio_lam;
-            return number;
-          })
-        );
-      } catch (error) {
-        console.log(error);
-      }
-    }
+  // useEffect(() => {
+  //   async function fetchData() {
+  //     try {
+  //       let res = await CallApi("cotloai", "GET"); // gọi API để lấy dữ liệu
+  //       console.log("Cột phải", res.data);
+  //       setData(
+  //         res.data.map((number) => {
+  //           number.so_gio_lam = +number.so_gio_lam;
+  //           return number;
+  //         })
+  //       );
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   }
 
-    fetchData();
-  }, []);
-  const barSize = data.length <= 10 ? 50 : data.length <= 30 ? 30 : 15;
+  //   fetchData();
+  // }, []);
+
+  const { data } = React.useContext(ExampleContext);
+  if (!data) {
+    console.log("data", data);
+    return null;
+  }
+
+  const barSize =
+    data.NvCotTrai.length <= 10 ? 50 : data.NvCotTrai.length <= 30 ? 30 : 15;
 
   return (
-    <div className="w-[47vw] ml-[1vw]">
+    <div className="w-[47vw] ml-[1vw] mb-3">
       <br />
       <div className="shadow-xl rounded-md bg-white">
         <p className="text-center text-xl font-bold py-3">
           Thời gian thực hiện các loại công việc trong tháng{" "}
-          {data.find((thang) => thang.name === "thang")?.month}
+          {data.NvCotTrai.find((thang) => thang.name === "thang")?.month}
         </p>
         <div className="w-full h-[540px] mb-4 flex justify-center">
-          {data.length !== 0 && (
+          <div className="rotate-90 items-center my-28 h-10 font-bold text-xl">
+            Số giờ
+          </div>
+          {data.NvCotTrai.length !== 0 && (
             <ComposedChart
               width={600}
               height={540}
-              data={data.filter((month) => {
+              data={data.NvCotTrai.filter((month) => {
                 return month.name !== "TongGioLam" && month.name !== "thang";
               })}
             >
@@ -60,23 +71,29 @@ function Bar_Right() {
                 tickMargin={50}
                 height={200}
                 padding={{ right: 30 }}
-                dx={-20} // Điều chỉnh vị trí của tick
+                dx={0} // Điều chỉnh vị trí của tick
                 dy={-30} // Điều chỉnh vị trí của label
                 textAnchor="start" // Căn lề của label theo hướng end (bên phải)
               />
-              <YAxis padding={{ top: 20 }} />
+              <YAxis padding={{ top: 25 }} />
               <Bar dataKey="so_gio_lam" barSize={barSize}>
-                {data.map((entry, index) => {
+                {data.NvCotTrai.map((entry, index) => {
                   const fillColor = "#91cc75"; // thay đổi màu fill tương ứng
                   return <Cell key={`cell-${index}`} fill={fillColor} />;
                 })}
-                <LabelList dataKey="so_gio_lam" position="top" fill="blue" />
+                <LabelList
+                  dataKey="so_gio_lam"
+                  position="top"
+                  style={{
+                    fontSize: "20px",
+                  }}
+                />
               </Bar>
-              <Tooltip
-                formatter={(value, name) => [value + " giờ làm", name]}
-              />
             </ComposedChart>
           )}
+        </div>
+        <div className="flex justify-center font-bold pb-2 text-xl">
+          Loại công việc
         </div>
       </div>
     </div>

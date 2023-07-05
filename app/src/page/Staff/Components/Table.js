@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Collapse from "@mui/material/Collapse";
 import IconButton from "@mui/material/IconButton";
@@ -6,16 +6,16 @@ import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
+import TablePagination from "@mui/material/TablePagination";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { BiDownload } from "react-icons/bi";
-import { TbArrowsSort } from "react-icons/tb";
 import { AiOutlineDown } from "react-icons/ai";
 import { GrNext } from "react-icons/gr";
 import XLSX from "xlsx";
 import moment from "moment";
-import CallApi from "../../../API/CallAPI";
+import ExampleContext from "../../Component/FilterMonth";
 
 function Row(props) {
   const { row } = props;
@@ -118,68 +118,14 @@ function Row(props) {
               <Table size="small" aria-label="purchases">
                 {/* Head của công việc con */}
                 <TableHead className="bg-[#6a994e] text-white">
-                  <tr>
-                    <th className="text-left">
-                      <p className="text-lg ml-2">Công việc đã giao</p>
-                    </th>
-                    <th className="w-[14vw]">
-                      <div className="flex text-lg ">Người đảm nhận</div>
-                    </th>
-                    <th className="w-[10vw]">
-                      <div className="flex text-lg justify-center items-center">
-                        <button>
-                          <p>Thời gian </p>
-                          <p>thực hiện </p>
-                        </button>
-                        <button className="ml-1 text-xl bg-blue-300">
-                          <TbArrowsSort />
-                        </button>
-                      </div>
-                    </th>
-                    <th className="w-[12vw] text-center">
-                      <div className="flex text-lg justify-center items-center">
-                        <button>
-                          <p>Thời hạn</p>
-                          <p>công việc</p>
-                        </button>
-                        <button className="ml-1 text-xl bg-blue-300">
-                          <TbArrowsSort />
-                        </button>
-                      </div>
-                    </th>
-                    <th className="w-[12vw] text-center">
-                      <div className="flex text-lg justify-center items-center">
-                        <button>
-                          <p>Thời gian</p>
-                          <p>hoàn thành</p>
-                        </button>
-                        <button className="ml-1 text-xl bg-blue-300">
-                          <TbArrowsSort />
-                        </button>
-                      </div>
-                    </th>
-                    <th className="w-[10vw] text-center">
-                      <div className="flex text-lg justify-center items-center">
-                        <button>
-                          <p>Trạng thái</p>
-                          <p>công việc</p>
-                        </button>
-                        <button className="ml-1 text-xl bg-blue-300">
-                          <TbArrowsSort />
-                        </button>
-                      </div>
-                    </th>
-                    <th className="w-[10vw]">
-                      <div className="flex text-lg justify-center items-center text-center">
-                        <button>
-                          <p>Tỷ lệ</p>
-                          <p>hoàn thành</p>
-                        </button>
-                        <button className="ml-1 text-xl bg-blue-300">
-                          <TbArrowsSort />
-                        </button>
-                      </div>
-                    </th>
+                  <tr className="text-lg h-12">
+                    <th className="text-left pl-2">Tên công việc</th>
+                    <th className="w-[14vw]">Người đảm nhận</th>
+                    <th className="w-[10vw] text-center">Thực hiện</th>
+                    <th className="w-[12vw] text-center">Hạn công việc</th>
+                    <th className="w-[12vw] text-center">Hoàn thành</th>
+                    <th className="w-[10vw] text-center">Trạng thái</th>
+                    <th className="w-[12vw] text-center">Tỷ lệ hoàn thành</th>
                   </tr>
                 </TableHead>
                 <TableBody>
@@ -234,30 +180,70 @@ function Row(props) {
 }
 
 export default function CollapsibleTable() {
-  const [data, setData] = useState([]);
-  const [isHovered, setIsHovered] = useState(false);
-  const [isClicked, setIsClicked] = useState(false);
+  const { data: thang } = React.useContext(ExampleContext);
+
+  const [data, setData] = useState(thang?.NvBang);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [sortState, setSortState] = useState({
+    columnName: "",
+    direction: "asc",
+  });
+
+  useEffect(() => {
+    if (thang) {
+      setData(thang.NvBang);
+    }
+  }, [thang]);
+
+  if (!data) {
+    console.log("data", data);
+    return null;
+  }
+
+  function compare(a, b, columnName, direction) {
+    const valueA = a[columnName];
+    const valueB = b[columnName];
+
+    if (direction === "asc") {
+      if (valueA < valueB) {
+        return -1;
+      }
+      if (valueA > valueB) {
+        return 1;
+      }
+      return 0;
+    } else {
+      if (valueA > valueB) {
+        return -1;
+      }
+      if (valueA < valueB) {
+        return 1;
+      }
+      return 0;
+    }
+  }
+
+  const handleSort = (columnName) => {
+    let direction = "asc";
+    if (sortState.columnName === columnName && sortState.direction === "asc") {
+      direction = "desc";
+    }
+    setSortState({
+      columnName,
+      direction,
+    });
+
+    setData((prevData) => {
+      const sortedData = prevData.sort((a, b) =>
+        compare(a, b, columnName, direction)
+      );
+      return [...sortedData];
+    });
+  };
 
   // kiểm tra độ dài của mảng data
   const noData = data.length === 0;
-
-  const handleClick = () => {
-    setIsClicked(!isClicked);
-  };
-
-  useEffect(() => {
-    async function dataTable() {
-      try {
-        let res = await CallApi("nvbang", "GET");
-        console.log("Bảng", res.data);
-        setData(res.data);
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
-    dataTable();
-  }, []);
 
   function exportToExcel() {
     const table = document.getElementsByTagName("table")[0]; // lấy table HTML đầu tiên trong document
@@ -271,118 +257,131 @@ export default function CollapsibleTable() {
 
   return (
     <div className="w-full">
-      {noData ? (
-        <div>Không có dữ liệu để hiển thị</div>
-      ) : (
-        <div className="m-auto px-5 pt-3">
-          <TableContainer component={Paper}>
-            {/* Phần Excel */}
-            <div className="flex  bg-[#1982c4] w-full h-12 items-center justify-between px-20">
-              <p className="ml-5 text-white text-3xl font-bold">
-                Danh sách các công việc
-              </p>
-              <button
-                onClick={exportToExcel}
-                className="flex mr-5 bg-[#6a994e] hover:bg-green-500 p-1 rounded-lg items-center"
-              >
-                <p className="text-lg text-white font-bold">Xuất Excel</p>
-                <div className="ml-2 text-white text-xl">
-                  <BiDownload />
-                </div>
-              </button>
+      <div className="m-auto px-5 pt-3">
+        {/* Phần Excel */}
+        <div className="flex w-full h-12 items-center justify-between">
+          <p className="ml-5 text-gray-700 text-3xl font-bold">
+            Danh sách công việc
+          </p>
+          <button
+            onClick={exportToExcel}
+            className="flex mr-5 bg-[#6a994e] hover:bg-green-500 p-1 rounded-lg items-center"
+          >
+            <p className="text-lg text-white font-bold">Xuất Excel</p>
+            <div className="ml-2 text-white text-xl">
+              <BiDownload />
             </div>
-            <Table aria-label="collapsible table">
-              <TableHead>
-                <tr>
-                  <th className="w-[1vw]"></th>
-                  <th className="text-left">
-                    <p className="text-xl ml-2">Tên công việc</p>
-                  </th>
-                  <th className="w-[15vw]">
-                    <div className="flex justify-center items-center">
-                      <button className="text-lg">
-                        <p>Thời gian </p>
-                        <p>thực hiện</p>
-                      </button>
-                      <button className="ml-1 text-xl bg-blue-300">
-                        <TbArrowsSort />
-                      </button>
-                    </div>
-                  </th>
-                  <th className="w-[13vw]">
-                    <div className="flex justify-center items-center">
-                      <button className="text-lg">
-                        <p>Thời hạn </p>
-                        <p>công việc</p>
-                      </button>
-                      <button className="ml-1 text-xl bg-blue-300">
-                        <TbArrowsSort />
-                      </button>
-                    </div>
-                  </th>
-                  <th className="w-[13vw] text-center">
-                    <div className="flex justify-center">
-                      <button
-                        className={`flex items-center border button ${
-                          isClicked ? "bg-blue-300" : ""
-                        }`}
-                        onClick={handleClick}
-                        onMouseEnter={() => setIsHovered(true)}
-                        onMouseLeave={() => setIsHovered(false)}
-                      >
-                        <div className="text-lg">
-                          <p>Thời gian</p>
-                          <p>hoàn thành</p>
-                        </div>
-                        {isHovered || isClicked ? (
-                          <span className="icon-wrapper">
-                            <TbArrowsSort
-                              className={`text-xl ${
-                                isClicked ? "text-white" : ""
-                              }`}
-                            />
-                          </span>
-                        ) : null}
-                      </button>
-                    </div>
-                  </th>
-
-                  <th className="w-[13vw] text-center">
-                    <div className="flex justify-center items-center">
-                      <button className="text-lg">
-                        <p>Trạng thái </p>
-                        <p>công việc</p>
-                      </button>
-                      <button className="ml-1 text-xl bg-blue-300">
-                        <TbArrowsSort />
-                      </button>
-                    </div>
-                  </th>
-                  <th className="w-[13vw] text-center">
-                    <div className="flex justify-center items-center">
-                      <button className="text-lg">
-                        <p>Tỷ lệ</p>
-                        <p>hoàn thành</p>
-                      </button>
-                      <button className="ml-1 text-xl bg-blue-300">
-                        <TbArrowsSort />
-                      </button>
-                    </div>
-                  </th>
-                </tr>
-                <tr>
-                  <th colSpan={7} className="bg-blue-500 h-2"></th>
-                </tr>
-              </TableHead>
-              <TableBody>
-                {data.map((row, index) => (
-                  <Row key={row.cv_id} row={row} index={index} />
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+          </button>
         </div>
-      )}
+        <TableContainer component={Paper}>
+          <Table aria-label="collapsible table">
+            <TableHead>
+              <tr className="text-xl h-14 border-b-2 text-white bg-[#1982c4]">
+                <th className="w-[2vw]"></th>
+                <th className="text-left">
+                  <button
+                    onClick={() => handleSort("cv_ten")}
+                    className={`focus:outline-none ${
+                      sortState.columnName === "cv_ten" ? "text-gray-900" : ""
+                    }`}
+                  >
+                    Tên công việc
+                  </button>
+                </th>
+                <th className="text-center">
+                  <button
+                    onClick={() => handleSort("cv_tgthuchien")}
+                    className={`focus:outline-none ${
+                      sortState.columnName === "cv_tgthuchien"
+                        ? "text-gray-900"
+                        : ""
+                    }`}
+                  >
+                    Thực hiện
+                  </button>
+                </th>
+                <th className="w-[13vw] text-center">
+                  <button
+                    onClick={() => handleSort("cv_hanhoanthanh")}
+                    className={`focus:outline-none ${
+                      sortState.columnName === "cv_hanhoanthanh"
+                        ? "text-gray-900"
+                        : ""
+                    }`}
+                  >
+                    Hạn công việc
+                  </button>
+                </th>
+                <th className="w-[13vw] text-center">
+                  <button
+                    onClick={() => handleSort("cv_thgianhoanthanh")}
+                    className={`focus:outline-none ${
+                      sortState.columnName === "cv_thgianhoanthanh"
+                        ? "text-gray-900"
+                        : ""
+                    }`}
+                  >
+                    Hoàn thành
+                  </button>
+                </th>
+                <th className="w-[13vw] text-center">
+                  <button
+                    onClick={() => handleSort("cv_trangthai")}
+                    className={`focus:outline-none ${
+                      sortState.columnName === "cv_trangthai"
+                        ? "text-gray-900"
+                        : ""
+                    }`}
+                  >
+                    Trạng thái
+                  </button>
+                </th>
+                <th className="w-[13vw] text-center">
+                  <button
+                    onClick={() => handleSort("cv_tiendo")}
+                    className={`focus:outline-none ${
+                      sortState.columnName === "cv_tiendo"
+                        ? "text-gray-900"
+                        : ""
+                    }`}
+                  >
+                    Tỷ lệ hoàn thành
+                  </button>
+                </th>
+              </tr>
+            </TableHead>
+            {noData ? (
+              <th colSpan={7} className="py-5 text-2xl">
+                Không có dữ liệu để hiển thị
+              </th>
+            ) : (
+              <TableBody>
+                {data
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row, index) => (
+                    <Row key={row.cv_id} row={row} index={index} />
+                  ))}
+
+                {/* Phần phân trang */}
+                <th colSpan={7} className="text-xl">
+                  <TablePagination
+                    rowsPerPageOptions={[5, 10, 20]}
+                    component="div"
+                    count={data.length}
+                    rowsPerPage={rowsPerPage}
+                    page={page}
+                    onPageChange={(event, newPage) => setPage(newPage)}
+                    onRowsPerPageChange={(event) => {
+                      setRowsPerPage(parseInt(event.target.value, 10));
+                      setPage(0);
+                    }}
+                  />
+                </th>
+              </TableBody>
+            )}
+          </Table>
+        </TableContainer>
+      </div>
     </div>
   );
 }

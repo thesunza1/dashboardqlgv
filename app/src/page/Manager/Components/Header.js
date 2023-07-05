@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
-import Logo from "../../img/Logo_VNPT.png";
+import Logo from "../../../img/Logo_VNPT.png";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineDown } from "react-icons/ai";
 import { GrNext } from "react-icons/gr";
 import { TbLogout } from "react-icons/tb";
-import CallApi from "../../API/CallAPI";
-import ExampleContext from "../Component/FilterMonth";
+import CallApi from "../../../API/CallAPI";
+import ExampleContext from "../../Component/FilterMonth";
 
 function Header() {
-  const [selectedOption, setSelectedOption] = useState("Tháng 7");
+  const [selectedOption, setSelectedOption] = useState("Tháng ");
   const [user, setUser] = useState([]);
   const [showOptions, setShowOptions] = useState(false);
   const [month, setMonth] = useState([]);
@@ -18,19 +18,19 @@ function Header() {
   // const [userRole, setUserRole] = useState("");
   let navigate = useNavigate();
 
-  // useEffect(() => {
-  //   async function user() {
-  //     try {
-  //       let res = await CallApi("header", "GET");
-  //       console.log("User", res.data);
-  //       setData(res.data);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   }
+  useEffect(() => {
+    async function user() {
+      try {
+        let res = await CallApi("header", "GET");
+        console.log("User", res.data);
+        setUser(res.data);
+      } catch (error) {
+        console.log(error);
+      }
+    }
 
-  //   user();
-  // }, []);
+    user();
+  }, []);
 
   useEffect(() => {
     async function fetchData() {
@@ -46,17 +46,24 @@ function Header() {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (month.length !== 0) {
+      const thang = new Date().getMonth() + 1;
+      handleOptionClick("Tháng " + thang);
+    }
+  }, [month]);
+
   const handleOptionClick = (option) => {
     console.log("Thang", option.split(` `)[1]);
     for (let i in month) {
       console.log("i", i.split(` `)[1]);
-      if (option.split(` `)[1] == i.split(` `)[1]) {
+      if (option.split(` `)[1] === i.split(` `)[1]) {
         console.log("mon", month[i]);
         setData(month[i][0]);
       }
     }
-    // setSelectedOption(option);
-    // setShowOptions(false);
+    setSelectedOption(option);
+    setShowOptions(false);
   };
 
   const [showPopup, setShowPopup] = useState(false);
@@ -85,7 +92,7 @@ function Header() {
       <h1 className="text-[2.5rem] font-bold text-gray-500 mr-[10vw]">
         TRANG QUẢN TRỊ
       </h1>
-      <div className="flex ml-[30vw] w-36">
+      <div className="flex ml-[30vw]">
         <div className="z-10 position">
           <div className="relative">
             <button
@@ -228,7 +235,7 @@ function Header() {
           </div>
         </div>
       </div>
-      {/* {data.map((user) => (
+      {user.map((user) => (
         <div className="mx-[1vw]">
           <div className="font-bold text-xl">
             <p>{user.TenNv}</p>
@@ -237,8 +244,8 @@ function Header() {
             <p>{user.ChucVu}</p>
           </div>
         </div>
-      ))} */}
-      <div
+      ))}
+      {/* <div
         className="flex mr-[2vw] px-2 py-1 relative"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -255,7 +262,7 @@ function Header() {
             Đăng xuất
           </div>
         )}
-      </div>
+      </div> */}
     </div>
   );
 }

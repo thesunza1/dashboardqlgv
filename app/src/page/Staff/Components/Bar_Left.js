@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import CallApi from "../../../API/CallAPI";
+import React from "react";
+import ExampleContext from "../../Component/FilterMonth";
 
 import {
   ComposedChart,
@@ -12,43 +12,33 @@ import {
 } from "recharts";
 
 function Bar_Left() {
-  const [data, setData] = useState([]);
+  const { data } = React.useContext(ExampleContext);
+  if (!data) {
+    console.log("data", data);
+    return null;
+  }
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        let res = await CallApi("nvcot", "GET"); // gọi API để lấy dữ liệu
-        console.log("Cột trái", res.data);
-        setData(
-          res.data.map((number) => {
-            number.so_gio_lam = +number.so_gio_lam;
-            return number;
-          })
-        );
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
-    fetchData();
-  }, []);
-  const barSize = data.length <= 10 ? 50 : data.length <= 30 ? 30 : 15;
+  const barSize =
+    data.NvCot.length <= 10 ? 50 : data.NvCot.length <= 30 ? 30 : 15;
 
   return (
-    <div className="w-[47vw]">
+    <div className="w-[47vw] mb-3">
       <br />
       <div className="shadow-xl rounded-md bg-white">
         <p className="text-center text-xl font-bold py-3">
           Thời gian thực hiện công việc trong tháng{" "}
-          {data.find((thang) => thang.name === "thang")?.month} là :{" "}
-          {data.find((thang) => thang.name === "TongGioLam")?.value} giờ
+          {data.NvCot.find((thang) => thang.name === "thang")?.month} là :{" "}
+          {data.NvCot.find((thang) => thang.name === "TongGioLam")?.value} giờ
         </p>
         <div className="w-full h-[540px] mb-4 flex justify-center">
-          {data.length !== 0 && (
+          <div className="rotate-90 items-center my-28 h-10 font-bold text-xl">
+            Số giờ
+          </div>
+          {data.NvCot.length !== 0 && (
             <ComposedChart
               width={600}
               height={540}
-              data={data.filter((month) => {
+              data={data.NvCot.filter((month) => {
                 return month.name !== "TongGioLam" && month.name !== "thang";
               })}
             >
@@ -60,20 +50,29 @@ function Bar_Left() {
                 tickMargin={100}
                 height={200}
                 padding={{ right: 30 }}
-                dx={-20} // Điều chỉnh vị trí của tick
+                dx={0} // Điều chỉnh vị trí của tick
                 dy={-90} // Điều chỉnh vị trí của label
                 textAnchor="start" // Căn lề của label theo hướng end (bên phải)
               />
-              <YAxis padding={{ top: 20 }} />
+              <YAxis padding={{ top: 25 }} />
               <Bar dataKey="so_gio_lam" barSize={barSize}>
-                {data.map((entry, index) => {
+                {data.NvCot.map((entry, index) => {
                   const fillColor = "#3e92cc"; // thay đổi màu fill tương ứng
                   return <Cell key={`cell-${index}`} fill={fillColor} />;
                 })}
-                <LabelList dataKey="so_gio_lam" position="top" fill="blue" />
+                <LabelList
+                  dataKey="so_gio_lam"
+                  position="top"
+                  style={{
+                    fontSize: "20px",
+                  }}
+                />
               </Bar>
             </ComposedChart>
           )}
+        </div>
+        <div className="flex justify-center font-bold pb-2 text-xl">
+          Tên công việc
         </div>
       </div>
     </div>

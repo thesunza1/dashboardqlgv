@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import Header from "../Component/Header";
+import Header from "./Components/Header";
 import Table from "./Components/Table";
 import Bar_Time from "./Components/Bar_Time";
 import Pie_Left from "./Components/Pie_Left";
@@ -10,7 +10,7 @@ import Bar_Right from "./Components/Bar_Right";
 
 function Home() {
   return (
-    <div className="bg-[#eff0f5] text-gray-600">
+    <div className="bg-[#f9f8f8] text-gray-600">
       <div>
         <Header />
       </div>

@@ -6,7 +6,7 @@ function Pie_Manager() {
   const [data, setData] = useState([]);
 
   //pie-chart
-  var COLORS = ["#178df0", "#90cb74", "#ee6766"];
+  var COLORS = ["#3e92cc", "#90cb74", "#ee6766"];
 
   useEffect(() => {
     async function fetchData() {
@@ -41,11 +41,11 @@ function Pie_Manager() {
       <div className="w-[45vw] shadow-2xl rounded-md bg-white">
         <p className="text-center text-xl font-bold py-3">
           Tỉ lệ công viêc trong tháng{" "}
-          {data.find((thang) => thang.name === "thang")?.month}
+          {/* {data.find((thang) => thang.name === "thang")?.month} */}
         </p>
         <div className="flex justify-center items-center">
           {data.length !== 0 && (
-            <PieChart width={750} height={400}>
+            <PieChart width={750} height={435}>
               <Pie
                 data={data.filter((cv) => {
                   return cv.name !== "thang";
@@ -59,12 +59,7 @@ function Pie_Manager() {
                   }
                   return `${name}: ${tile} (${value})`;
                 }}
-                // labelLine={({ value }) => {
-                //   if (value === 0) {
-                //     return null;
-                //   }
-                //   return { stroke: "gray", strokeWidth: 1, radius: "40%" };
-                // }}
+                labelLine={{ stroke: "gray", strokeWidth: 1, radius: "40%" }}
                 outerRadius="130"
                 fill="#8884d8"
               >

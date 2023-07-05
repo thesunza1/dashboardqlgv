@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import CallApi from "../../../API/CallAPI";
+import ExampleContext from "../../Component/FilterMonth";
 
 import {
   ComposedChart,
@@ -8,32 +9,43 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
   Cell,
 } from "recharts";
 
 function Bar_Time() {
-  const [data, setData] = useState([]);
+  // const [data, setData] = useState([]);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        let res = await CallApi("cotngay", "GET"); // gọi API để lấy dữ liệu
-        console.log("Cột trái", res.data);
-        setData(
-          res.data.map((number) => {
-            number.so_gio_lam = +number.so_gio_lam;
-            return number;
-          })
-        );
-      } catch (error) {
-        console.log(error);
-      }
-    }
+  // useEffect(() => {
+  //   async function fetchData() {
+  //     try {
+  //       let res = await CallApi("cotngay", "GET");
+  //       console.log("Cột trái", res.data);
+  //       setData(
+  //         res.data.map((number) => {
+  //           number.so_gio_lam = +number.so_gio_lam;
+  //           return number;
+  //         })
+  //       );
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   }
 
-    fetchData();
-  }, []);
-  const barSize = data.length <= 10 ? 50 : data.length <= 30 ? 30 : 15;
+  //   fetchData();
+  // }, []);
+
+  const { data } = React.useContext(ExampleContext);
+  if (!data) {
+    console.log("data", data);
+    return null;
+  }
+
+  const barSize =
+    data.NvCOtNgayLam.length <= 10
+      ? 50
+      : data.NvCOtNgayLam.length <= 20
+      ? 30
+      : 20;
 
   return (
     <div className="w-[full] px-8">
@@ -44,21 +56,26 @@ function Bar_Time() {
             Biểu đồ giờ làm trong ngày
           </p>
           <p className="text-center text-xl font-bold pr-32">
-            Tháng {data.find((thang) => thang.name === "thang")?.month}
+            Tháng{" "}
+            {data.NvCOtNgayLam.find((thang) => thang.name === "thang")?.month}
           </p>
           <p className="text-center text-xl font-bold">
-            Tổng giờ : {data.find((thang) => thang.name === "tong_gio")?.value}
+            Tổng giờ :{" "}
+            {
+              data.NvCOtNgayLam.find((thang) => thang.name === "tong_gio")
+                ?.value
+            }
           </p>
         </div>
-        <div className="w-full h-[400px] flex justify-center pr-20">
+        <div className="w-full h-[400px] flex justify-center pr-10">
           <div className="rotate-90 items-center mb-28 h-20 mt-28 font-bold text-xl">
             Số giờ
           </div>
-          {data.length !== 0 && (
+          {data.NvCOtNgayLam.length !== 0 && (
             <ComposedChart
-              width={1000}
+              width={1260}
               height={400}
-              data={data.filter((month) => {
+              data={data.NvCOtNgayLam.filter((month) => {
                 return month.name !== "tong_gio" && month.name !== "thang";
               })}
             >
@@ -70,17 +87,20 @@ function Bar_Time() {
                 tickMargin={50}
                 height={105}
               />
-              <YAxis padding={{ top: 20 }} />
+              <YAxis padding={{ top: 25 }} />
               <Bar dataKey="so_gio_lam" barSize={barSize}>
-                {data.map((entry, index) => {
+                {data.NvCOtNgayLam.map((entry, index) => {
                   const fillColor = "#3e92cc"; // thay đổi màu fill tương ứng
                   return <Cell key={`cell-${index}`} fill={fillColor} />;
                 })}
-                <LabelList dataKey="so_gio_lam" position="top" fill="blue" />
+                <LabelList
+                  dataKey="so_gio_lam"
+                  position="top"
+                  style={{
+                    fontSize: "20px",
+                  }}
+                />
               </Bar>
-              <Tooltip
-                formatter={(value, name) => [value + " giờ làm", name]}
-              />
             </ComposedChart>
           )}
         </div>
