@@ -42,9 +42,42 @@ class Tong extends Controller
         $resultten = array_map("unserialize", array_unique(array_map("serialize", $resultten)));
         return $resultten;
     }
+    public function headnv(Request $request)
+    {
+        $id = 6;
+        //$user1=auth()->user();
+        //$id=$user1->nv_id;
+        $tt = NhanVien::ThongTinNhanVien($id);
+        $donvi = DonVi::select('dv_id', 'dv_ten', 'dv_id_dvtruong')->get();
+        $resultten = array();
+        $quyen = "";
+
+        foreach ($donvi as $value) {
+            // Khởi tạo các biến
+
+            foreach ($tt as $nv) {
+                $tenNv = $nv->nv_ten;
+                if ($nv->nv_quyen == 'ld') {
+                    $quyen = "Lãnh Đạo";
+                }
+                if ($nv->nv_quyen == 'nv') {
+                    if ($nv->nv_quyenthamdinh == 1) {
+                        $quyen = "Trưởng Phòng";
+                    } else $quyen = "Nhân Viên";
+                }
+            }
+            $resultten[] = array(
+                'TenNv' => $tenNv,
+                'ChucVu' => $quyen
+
+            );
+        }
+        $resultten = array_map("unserialize", array_unique(array_map("serialize", $resultten)));
+        return $resultten;
+    }
     public function nhanvien(Request $request)
     {
-        $id = 1;
+        $id = 6;
         //$user1=auth()->user();
         //$id=$user1->nv_id;
 
@@ -101,7 +134,7 @@ class Tong extends Controller
 
 
             //thời gian thực hiện công việc của tháng hiện tại
-            $TongGioLam = BaoCaoHangNgay::SoGioLam($id, $thang);
+            $TongGioLam = CongViec::SoGioLam($id, $thang);
 
             $GCv = CongViec::SoGioLamTheocvId($id, $thang);
 
@@ -149,7 +182,7 @@ class Tong extends Controller
                 $TLCHTQH = 0;
             }
 
-            $CongViecVaGio = BaoCaoHangNgay::SoGioLamTheoLcvId($id, $thang);
+            $CongViecVaGio = CongViec::SoGioLamTheoLcvId($id, $thang);
             $thangh = ["name" => "thang", "month" => $thang];
             $CongViecVaGio[] = $thangh;
 
@@ -178,7 +211,7 @@ class Tong extends Controller
                 'NvCOtNgayLam' => $GioTheoNgay
 
             ];
-            $months[$i] = ["name" => $months[$i]];
+
             $responseData[$months[$i]][] =  $monthData;
         }
         return response()->json($responseData);
@@ -259,20 +292,24 @@ class Tong extends Controller
                 $sapdenhan = 0;
                 $hethan = 0;
                 $tongcv = 0;
+                $DangLam = 0;
                 $ten = "";
                 // Lặp qua các công việc
                 foreach ($congviec as $cv) {
 
                     if ($cv->dv_id == $value->dv_id) {
 
-                        if ($cv->cv_trangthai > 1) { // Đang thực hiện
+                        if ($cv->cv_trangthai < 5 && $cv->cv_trangthai > 1) { // Đang thực hiện
                             $tongcv++; // Tăng tổng công việc lên 1
                         }
-                        if ($cv->cv_hanhoanthanh >= $hientai && $cv->cv_hanhoanthanh <= $ngay) { // Sắp đến hạn hoàn thành
+                        if ($cv->cv_trangthai == 2 && $cv->cv_hanhoanthanh >= $hientai && $cv->cv_hanhoanthanh <= $ngay) { // Sắp đến hạn hoàn thành
                             $sapdenhan++; // Tăng số lượng công việc sắp hết hạn lên 1
                         }
-                        if (4 == $cv->cv_trangthai) { // Hết hạn hoàn thành
+                        if ($cv->cv_trangthai == 4) { // Hết hạn hoàn thành
                             $hethan++; // Tăng số lượng công việc đã hết hạn hoàn thành lên 1
+                        }
+                        if ($cv->cv_trangthai == 2) { // Hết hạn hoàn thành
+                            $DangLam++; // Tăng số lượng công việc đã hết hạn hoàn thành lên 1
                         }
                     }
                 }
@@ -290,7 +327,7 @@ class Tong extends Controller
                     }
                 }
                 if ($tongcv != 0) {
-                    $total = $sapdenhan + $hethan;
+                    $total = $sapdenhan + $hethan + ($DangLam - $sapdenhan);
                     $tile = ($tongcv - $total) / $tongcv * 100;
                 }
                 if ($tongcv == 0) {
